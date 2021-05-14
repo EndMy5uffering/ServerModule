@@ -5,11 +5,14 @@ public class PackageInfo{
 	private short length;
 	private boolean dynamicLength;
 	private PackageConstructor construct;
+	private PackageCallBack callback;
 	
-	public PackageInfo(byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {
+	public PackageInfo(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
 		this.id = id;
 		this.length = length;
 		this.dynamicLength = dynamicLength;
+		this.construct = construct;
+		this.callback = packageCallBack;
 	}
 
 	public byte[] getId() {
@@ -26,5 +29,9 @@ public class PackageInfo{
 
 	public PackageConstructor getConstruct() {
 		return construct;
+	}
+
+	public PackageCallBack getCallback() {
+		return callback;
 	}
 }

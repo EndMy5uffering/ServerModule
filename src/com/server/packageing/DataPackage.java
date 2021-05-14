@@ -2,11 +2,12 @@ package com.server.packageing;
 
 import java.nio.ByteBuffer;
 
+
 public class DataPackage implements PackageConstructor{
 
 	public final static short IDLENGTH = 2;
 	
-	private byte[] id;
+	private byte[] id = new byte[] {0x0, 0x0};
 	private byte[] byteDataRaw;
 	private short length;
 	private boolean dynamicLength = false;
@@ -29,7 +30,7 @@ public class DataPackage implements PackageConstructor{
 
 	public byte[] pack() {
 		//TODO: DO stuff
-		byte[] l = DataPackage.getLengthFromInt(this.length, this.length);
+		byte[] l = DataPackage.getLengthFromInt(this.byteDataRaw.length, this.length);
 		
 		byte[] out = new byte[IDLENGTH + l.length + this.byteDataRaw.length];
 		for(int i = 0; i < IDLENGTH; ++i) {
@@ -83,9 +84,25 @@ public class DataPackage implements PackageConstructor{
 		return buffer.array();
 	}
 	
-	public static int getLengthFromByte(byte[] b) {
+	public static int getIntFromByte(byte[] b) {
 		ByteBuffer buffer = ByteBuffer.wrap(b);
-		return buffer.getInt();
+		if(b.length < 4 && b.length > 1) {
+			return buffer.getShort();
+		}else if(b.length > 3) {
+			return buffer.getInt();
+		}else if(b.length == 1) {
+			return buffer.get();
+		}
+		return -1;
+	}
+	
+	@Override
+	public String toString() {
+		String out = "";
+		for(byte b : this.pack()) {
+			out += b + " ";
+		}
+		return out;
 	}
 	
 	public byte[] getByteData() {

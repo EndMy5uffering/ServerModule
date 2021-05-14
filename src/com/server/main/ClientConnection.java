@@ -78,25 +78,40 @@ public class ClientConnection{
 					byte[] data = new byte[DataPackage.IDLENGTH];
 					
 					reader.read(data);
-					
 					PackageInfo info = PackageManager.getPackageInfo(data);
-					if(info != null && !info.isDynamicLength()) {
+					
+					if(info == null) {
+						Server.logger.log(Level.ERROR, "Unknown package recived by: " + socket.getInetAddress().toString());
+						Server.logger.log(Level.ERROR, "Unknown package id: " + data[0] + data[1]);
+						disable();
+					}
+					if(!info.isDynamicLength()) {
+						
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
 						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
-					}else if(info != null && info.isDynamicLength()){
+					
+					}else {
+						
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
-						int length = DataPackage.getLengthFromByte(rawData);
-						rawData = new byte[length];
-						reader.read(rawData);
+						int length = DataPackage.getIntFromByte(rawData);
+						if(length >= 0 && length < Server.getMaxPackageSize()) {
+							rawData = new byte[length];
+							reader.read(rawData);
+						}else if(length > Server.getMaxPackageSize() || length < 0) {
+							Server.logger.log(Level.ERROR, "Size missmatch packages have to be larger or equal to 0 and smaller to max package length!");
+							break;
+						}
+						
 						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
+					
 					}
 					
 					if(callback != null && dataOut != null) callback.call(dataOut);
+					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut);
 				}
 			} catch (IOException e) {
-				//TODO: logger
 				Server.logger.log(Level.ERROR, e, e.getClass());
 			}
 			disable();
@@ -114,11 +129,18 @@ public class ClientConnection{
 			} catch (IOException e) {
 				//TODO: logger
 				Server.logger.log(Level.ERROR, e, e.getClass());
+				disable();
 			}
 		}
 	}
 	
+	public void disable(Level level, String log) {
+		Server.logger.log(level, log);
+		disable();
+	}
+	
 	public void disable() {
+		Server.logger.log(Level.INFO, "Disableing connection for: " + socket.getInetAddress().toString());
 		this.state = State.Dead;
 		try {
 			if(socket != null) this.socket.close();

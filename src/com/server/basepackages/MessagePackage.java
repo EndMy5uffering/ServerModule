@@ -18,13 +18,8 @@ public class MessagePackage extends DataPackage{
 		this.setId(ID);
 	}
 	
-	@Override
-	public String toString() {
-		String out = "";
-		for(byte b : this.pack()) {
-			out += b + " ";
-		}
-		return out;
+	public String getMessage() {
+		return new String(this.getByteDataRaw());
 	}
-
+	
 }

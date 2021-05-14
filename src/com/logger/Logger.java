@@ -3,6 +3,7 @@ package com.logger;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.Array;
 import java.util.Collection;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, String s) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		if(s == null) {
 			out += " [string was null]";
 		}else {
@@ -40,7 +41,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, String s, Class<?> type) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		out += (type != null ? " " + type.getName() + " " : " ");		
 		out += (s != null ? s : "[Exception was null]");
@@ -49,7 +50,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, Exception e, Class<?> type) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		out += (type != null ? " " + type.getName() + " " : " ");		
 		out += (e != null ? e.getMessage() : "[Exception was null]");
@@ -58,7 +59,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, Exception e) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		out += " " + (e != null ? e.getMessage() : "[Exception was null]");
 
@@ -66,7 +67,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, Collection<?> l) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		if(l != null) {
 			out += " collection:- Size(" + l.size() + ")->{";
@@ -84,7 +85,7 @@ public class Logger {
 	}
 	
 	public void log(Level level, Map<?, ?> m) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		if(m != null) {
 			if(m.isEmpty()) {
@@ -109,7 +110,7 @@ public class Logger {
 	}
 		
 	public void log(Level level, Object o) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		if(o != null) {
 			out += " Object:" + o.getClass().getName() + "\n";
@@ -142,15 +143,15 @@ public class Logger {
 	}
 	
 	public void log(Level level, LogInterface i) {
-		String out = getStackTrace();
+		String out = getStackTrace(level);
 		
 		out += " " + i.log();
 
 		p.print(level, out);
 	}
 	
-	private String getStackTrace() {
-		if(this.mode == PrintMode.Event) return "";
+	private String getStackTrace(Level level) {
+		if(this.mode == PrintMode.Event && level != Level.DEBUG) return "";
 		StackTraceElement e = new Exception().getStackTrace()[2];
 		return "Trace:" + e.getClassName() + "." + e.getMethodName() + "() Line:" + e.getLineNumber();
 	}

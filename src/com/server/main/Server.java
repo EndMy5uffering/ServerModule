@@ -26,6 +26,8 @@ public class Server {
 	
 	private boolean IsAlive = true;
 	
+	private static int maxPackageSize = 2048;
+	
 	public Server(int port) {
 		this.port = port;
 	}
@@ -100,6 +102,14 @@ public class Server {
 
 	public void setPrintMode(PrintMode mode) {
 		logger.setMode(mode);
+	}
+
+	public static int getMaxPackageSize() {
+		return Server.maxPackageSize;
+	}
+
+	public static void setMaxPackageSize(int maxPackageSize) {
+		Server.maxPackageSize = maxPackageSize;
 	}
 	
 }
