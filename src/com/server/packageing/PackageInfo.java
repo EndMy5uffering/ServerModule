@@ -34,4 +34,8 @@ public class PackageInfo{
 	public PackageCallBack getCallback() {
 		return callback;
 	}
+
+	public void setCallback(PackageCallBack callback) {
+		this.callback = callback;
+	}
 }

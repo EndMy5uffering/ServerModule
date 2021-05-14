@@ -32,12 +32,7 @@ public class Server {
 		this.port = port;
 	}
 	
-	private void serverInit() {
-		
-	}
-	
 	public void start() throws NullPointerException {
-		serverInit();
 		
 		logger.log(Level.INFO, "Starting server");
 		
