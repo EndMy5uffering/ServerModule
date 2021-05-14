@@ -11,6 +11,9 @@ public class PackageManager {
 	}
 	
 	public static void register(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
+		if(getPackageInfo(id) != null) {
+			throw new IllegalArgumentException("Cannot register package with id: (" + DataPackage.getIntFromByte(id) + ")! A package is already registered under that id! ");
+		}
 		PACKAGELOOKUP.put(DataPackage.getIntFromByte(id), new PackageInfo(id, length, dynamicLength, construct, packageCallBack));
 	}
 	

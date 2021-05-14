@@ -44,7 +44,6 @@ public class ClientConnection{
 		} catch (IOException e) {
 			out = null;
 			this.reader = null;
-			//TODO: logger
 			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
 		
@@ -52,7 +51,6 @@ public class ClientConnection{
 			try {
 				this.socket.setSoTimeout(timeout);
 			} catch (SocketException e) {
-				//TODO: logger
 				Server.logger.log(Level.ERROR, e, e.getClass());
 			}
 		}
@@ -103,7 +101,7 @@ public class ClientConnection{
 							Server.logger.log(Level.ERROR, "Size missmatch packages have to be larger or equal to 0 and smaller to max package length!");
 							break;
 						}
-						
+					
 						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
 					
 					}
@@ -127,7 +125,6 @@ public class ClientConnection{
 				out.write(data.pack());
 				out.flush();
 			} catch (IOException e) {
-				//TODO: logger
 				Server.logger.log(Level.ERROR, e, e.getClass());
 				disable();
 			}
@@ -147,7 +144,6 @@ public class ClientConnection{
 			if(reader != null) this.reader.close();
 			if(out != null) this.out.close();
 		} catch (IOException e) {
-			//TODO: logger
 			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
 		ClientManager.removeClient(this);
