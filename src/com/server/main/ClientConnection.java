@@ -1,15 +1,20 @@
 package com.server.main;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
+
+import com.logger.Level;
+import com.server.packageing.DataPackage;
+import com.server.packageing.PackageInfo;
+import com.server.packageing.PackageManager;
 
 enum State{
 	Active,
 	Idle,
+	Suspended,
 	Dead
 }
 
@@ -21,9 +26,8 @@ public class ClientConnection{
 
 	private State state;
 	
-	private OutputStreamWriter writer;
-	
 	private OutputStream out;
+	private InputStream reader;
 	
 	private ClientCallBack callback = null;
 	
@@ -36,11 +40,12 @@ public class ClientConnection{
 		
 		try {
 			out = socket.getOutputStream();
-			writer = new OutputStreamWriter(out);
-		} catch (IOException e1) {
+			this.reader = socket.getInputStream();
+		} catch (IOException e) {
 			out = null;
-			writer = null;
+			this.reader = null;
 			//TODO: logger
+			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
 		
 		if(timeout >= 0) {
@@ -48,6 +53,7 @@ public class ClientConnection{
 				this.socket.setSoTimeout(timeout);
 			} catch (SocketException e) {
 				//TODO: logger
+				Server.logger.log(Level.ERROR, e, e.getClass());
 			}
 		}
 		
@@ -66,39 +72,63 @@ public class ClientConnection{
 		this.clientThread = new Thread(() -> {
 			if(this.state != State.Active) return;
 			try {
-				//TODO: readInput
+				if(reader == null) return;
 				while(this.state == State.Active) {
-					byte[] data = new byte[1024];
+					DataPackage dataOut = null;
+					byte[] data = new byte[DataPackage.IDLENGTH];
 					
-					socket.getInputStream().read(data);
+					reader.read(data);
 					
-					if(callback != null) callback.call(new DataPackage(data));
+					PackageInfo info = PackageManager.getPackageInfo(data);
+					if(info != null && !info.isDynamicLength()) {
+						byte[] rawData = new byte[info.getLength()];
+						reader.read(rawData);
+						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
+					}else if(info != null && info.isDynamicLength()){
+						byte[] rawData = new byte[info.getLength()];
+						reader.read(rawData);
+						int length = DataPackage.getLengthFromByte(rawData);
+						rawData = new byte[length];
+						reader.read(rawData);
+						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
+					}
+					
+					if(callback != null && dataOut != null) callback.call(dataOut);
 				}
 			} catch (IOException e) {
 				//TODO: logger
+				Server.logger.log(Level.ERROR, e, e.getClass());
 			}
+			disable();
 		});
 		
 		this.clientThread.start();
 	}
 	
 	public void send(DataPackage data) {
-		if(out == null) throw new NullPointerException("Output stream of socket was null!");
-		try {
-			out.write(data.getByteData());
-			out.flush();
-		} catch (IOException e) {
-			//TODO: logger
+		if(out == null) return;
+		if(this.state == State.Active) {
+			try {
+				out.write(data.pack());
+				out.flush();
+			} catch (IOException e) {
+				//TODO: logger
+				Server.logger.log(Level.ERROR, e, e.getClass());
+			}
 		}
 	}
 	
 	public void disable() {
 		this.state = State.Dead;
 		try {
-			this.socket.close();
+			if(socket != null) this.socket.close();
+			if(reader != null) this.reader.close();
+			if(out != null) this.out.close();
 		} catch (IOException e) {
 			//TODO: logger
+			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
+		ClientManager.removeClient(this);
 	}
 
 	public ClientCallBack getCallback() {
