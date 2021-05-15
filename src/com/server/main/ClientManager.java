@@ -7,14 +7,18 @@ import com.server.packageing.DataPackage;
 
 class ClientManager {
 
-	private static List<ClientConnection> connecitons = new ArrayList<>();
+	private List<ClientConnection> connecitons = new ArrayList<>();
+	
+	public ClientManager() {
+		
+	}
 	
 	/**
 	 * Adds the client to the manager list <b>and</b> enables (starts) the client thread.
 	 * 
 	 * @param connection
 	 * */
-	public static void submit(ClientConnection connection) {
+	public void submit(ClientConnection connection) {
 		connecitons.add(connection);
 		connection.enable();
 	}
@@ -24,7 +28,7 @@ class ClientManager {
 	 * For all client connections the disable function is called.
 	 * 
 	 * */
-	public static void stopClients() {
+	public void stopClients() {
 		for(ClientConnection c : connecitons) {
 			c.disable();
 		}
@@ -36,7 +40,7 @@ class ClientManager {
 	 * 
 	 * @param client
 	 * */
-	public synchronized static void removeClient(ClientConnection client) {
+	public synchronized void removeClient(ClientConnection client) {
 		connecitons.remove(client);
 	}
 	
@@ -46,7 +50,7 @@ class ClientManager {
 	 * 
 	 * @param data A package of type DataPackage
 	 * */
-	public synchronized static void sendToClient(DataPackage data) {
+	public synchronized void sendToClient(DataPackage data) {
 		for(ClientConnection c : connecitons) {
 			c.send(data);
 		}

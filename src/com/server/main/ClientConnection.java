@@ -9,18 +9,16 @@ import java.net.SocketException;
 import com.logger.Level;
 import com.server.packageing.DataPackage;
 import com.server.packageing.PackageInfo;
-import com.server.packageing.PackageManager;
 
 enum State{
 	Active,
-	Idle,
-	Suspended,
 	Dead
 }
 
 public class ClientConnection{
 
 	private Socket socket;
+	private Server server;
 	
 	private Thread clientThread;
 
@@ -31,12 +29,13 @@ public class ClientConnection{
 	
 	private ClientCallBack callback = null;
 	
-	public ClientConnection(Socket socket, int timeout, ClientCallBack callback) {
+	public ClientConnection(Socket socket, Server server, int timeout, ClientCallBack callback) {
 		if(socket == null) {
 			this.state = State.Dead;
 		}
 		this.callback = callback;
 		this.socket = socket;
+		this.server = server;
 		
 		try {
 			out = socket.getOutputStream();
@@ -58,12 +57,12 @@ public class ClientConnection{
 		this.state = State.Active;
 	}
 	
-	public ClientConnection(Socket socket, int timeout){
-		this(socket, timeout, null);
+	public ClientConnection(Socket socket, Server server, int timeout){
+		this(socket, server, timeout, null);
 	}
 	
-	public ClientConnection(Socket socket){
-		this(socket, -1, null);
+	public ClientConnection(Socket socket, Server server){
+		this(socket, server, -1, null);
 	}
 	
 	/**
@@ -86,12 +85,13 @@ public class ClientConnection{
 					byte[] data = new byte[DataPackage.IDLENGTH];
 					
 					reader.read(data);
-					PackageInfo info = PackageManager.getPackageInfo(data);
+					PackageInfo info = this.server.getPackageManager().getPackageInfo(data);
 					
 					if(info == null) {
 						Server.logger.log(Level.ERROR, "Unknown package recived by: " + socket.getInetAddress().toString());
 						Server.logger.log(Level.ERROR, "Unknown package id: " + data[0] + data[1]);
 						disable();
+						return;
 					}
 					if(!info.isDynamicLength()) {
 						
@@ -167,7 +167,7 @@ public class ClientConnection{
 		} catch (IOException e) {
 			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
-		ClientManager.removeClient(this);
+		this.server.getClientManager().removeClient(this);
 	}
 
 	/**

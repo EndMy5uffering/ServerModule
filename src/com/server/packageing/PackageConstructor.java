@@ -6,6 +6,6 @@ public interface PackageConstructor {
 	 * General constructor function for a package.<br>
 	 * Has to be defined when registering a package so that the client connection can construct custom defined packages.
 	 * */
-	public <T> T build(short length, boolean dynamicLength, byte[] byteDataRaw);
+	public DataPackage build(short length, boolean dynamicLength, byte[] byteDataRaw);
 
 }

@@ -8,10 +8,15 @@ import com.logger.Level;
 import com.logger.Logger;
 import com.logger.PrintMode;
 import com.logger.PrintingType;
+import com.server.packageing.DataPackage;
+import com.server.packageing.PackageManager;
 
 public class Server {
 
 	public static Logger logger = new Logger(PrintingType.Console, PrintMode.Event);
+	
+	private final PackageManager packageManager;
+	private final ClientManager clientManager;
 	
 	private final int port;
 	
@@ -29,12 +34,20 @@ public class Server {
 	private static int maxPackageSize = 2048;
 	
 	public Server(int port) {
+		this(port, null);
+	}
+	
+	public Server(int port, ClientCallBack clientCallBack) {
 		this.port = port;
+		packageManager = new PackageManager();
+		this.callback = clientCallBack;
+		this.clientManager = new ClientManager();
 	}
 	
 	
 	/**
-	 * Starts the server thread.
+	 * Starts the server thread.<br>
+	 * All changes to the server settings have to happen before this function call.
 	 * */
 	public void start() {
 		
@@ -57,8 +70,8 @@ public class Server {
 					Socket s = serverSocket.accept();
 					logger.log(Level.INFO, "Client connecting " + s.getInetAddress().getHostAddress());
 					if(s != null) {
-						newConnection = new ClientConnection(s, this.clientTimeOut, callback);
-						ClientManager.submit(newConnection);
+						newConnection = new ClientConnection(s, this, this.clientTimeOut, callback);
+						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
 				} catch (IOException e) {
@@ -80,13 +93,21 @@ public class Server {
 	 * */
 	public void stopServer() {
 		try {
-			ClientManager.stopClients();
+			this.clientManager.stopClients();
 			if(serverSocket != null) serverSocket.close();
 			this.IsAlive = false;
 			logger.log(Level.INFO, "Stopping server");
 		} catch (IOException e) {
 			logger.log(Level.ERROR, e, e.getClass());
 		}
+	}
+	
+	/**
+	 * Sends a data package to all connected clients.
+	 * 
+	 * */
+	public void sendToAllClients(DataPackage data) {
+		this.clientManager.sendToClient(data);
 	}
 	
 	/**
@@ -148,6 +169,15 @@ public class Server {
 	 * */
 	public static void setMaxPackageSize(int maxPackageSize) {
 		Server.maxPackageSize = maxPackageSize;
+	}
+
+
+	public PackageManager getPackageManager() {
+		return packageManager;
+	}
+
+	public ClientManager getClientManager() {
+		return clientManager;
 	}
 	
 }

@@ -34,21 +34,23 @@ public class DataPackage{
 	 * All packages consist of:<br><br>
 	 * [IDLENGTH] bytes for the ID<br>
 	 * [Length] bytes for the package length when using dynamic length<br>
-	 * [4] bytes with value of <b>length</b> for the package length when using non dynamic length<br>
+	 * [Length] for static length are the bytes of [byteDataRaw]<br>
 	 * [byteDataRaw] bytes of raw byte data<br>
 	 * <br>
-	 * Sample:<br>
+	 * Sample dynamic length:<br>
 	 * <pre> ID	  Length	  RawData
 	 * [0x0 0x0][0x0 0x0 0x0 0x1][0x0]</pre>
+	 * <br>
+	 * Sample static length:
+	 * <pre> ID	 RawData
+	 * [0x0 0x0][0x0]</pre>
 	 * 
 	 * @return byte[]
 	 * */
 	public byte[] pack() {
-		byte[] l = new byte[4];
+		byte[] l = new byte[0];
 		if(dynamicLength) {
 			l = DataPackage.getByteArrayFromInt(this.byteDataRaw.length, this.length);
-		}else {
-			l = DataPackage.getByteArrayFromInt(this.length, 4);
 		}
 		
 		byte[] out = new byte[IDLENGTH + l.length + this.byteDataRaw.length];
