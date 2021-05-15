@@ -39,9 +39,7 @@ public class DatabaseManager {
 	
 	/**
 	 * This function sets up the database access.
-	 * 
-	 * @param plugin Is needed to find the datafolder.\nCan be null if the format is not SQLITE
-	 * 
+	 *  
 	 * */
 	public boolean createDatabaseConnection() {
 		switch (dbInfo.getType()) {

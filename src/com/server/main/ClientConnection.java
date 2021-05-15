@@ -47,7 +47,7 @@ public class ClientConnection{
 			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
 		
-		if(timeout >= 0) {
+		if(timeout > 0) {
 			try {
 				this.socket.setSoTimeout(timeout);
 			} catch (SocketException e) {
@@ -66,6 +66,16 @@ public class ClientConnection{
 		this(socket, -1, null);
 	}
 	
+	/**
+	 * Enables the client connection and starts the client thread.<br>
+	 * When enabled the client connection will listen to incoming packages.<br>
+	 * All received packages are relayed back to the server or the API via the callback functions.<br>
+	 * All packages can define there on callback function or the default server callback can be used.<br>
+	 * <br>
+	 * 
+	 * <b>The client will be automatically disconnected when a faulty package is received.</b>
+	 * 
+	 * */
 	public void enable() {
 		this.clientThread = new Thread(() -> {
 			if(this.state != State.Active) return;
@@ -118,6 +128,11 @@ public class ClientConnection{
 		this.clientThread.start();
 	}
 	
+	/**
+	 * Will send a data package to the client that is connected.<br>
+	 * 
+	 * @param data
+	 * */
 	public void send(DataPackage data) {
 		if(out == null) return;
 		if(this.state == State.Active) {
@@ -131,11 +146,17 @@ public class ClientConnection{
 		}
 	}
 	
+	/**
+	 * Disable function that can log an error if the connection had to be disabled in a catch block.
+	 * */
 	public void disable(Level level, String log) {
 		Server.logger.log(level, log);
 		disable();
 	}
 	
+	/**
+	 * Disables the client connection and stops all the in and output streams and removes the connection form the manager.
+	 * */
 	public void disable() {
 		Server.logger.log(Level.INFO, "Disableing connection for: " + socket.getInetAddress().toString());
 		this.state = State.Dead;
@@ -149,10 +170,16 @@ public class ClientConnection{
 		ClientManager.removeClient(this);
 	}
 
+	/**
+	 * Returns the default callback set by the server when the object was created.
+	 * */
 	public ClientCallBack getCallback() {
 		return callback;
 	}
 
+	/**
+	 * Sets the default callback for the connection.
+	 * */
 	public void setCallback(ClientCallBack callback) {
 		this.callback = callback;
 	}

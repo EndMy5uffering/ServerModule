@@ -4,6 +4,11 @@ import com.server.packageing.DataPackage;
 
 public interface ClientCallBack {
 
+	/**
+	 * Callback interface to allow the client connection to inform the server about received packages.
+	 * 
+	 * @param data received data package form the client connection.
+	 * */
 	void call(DataPackage data);
 	
 }

@@ -3,7 +3,7 @@ package com.server.packageing;
 import java.nio.ByteBuffer;
 
 
-public class DataPackage implements PackageConstructor{
+public class DataPackage{
 
 	public final static short IDLENGTH = 2;
 	
@@ -18,19 +18,38 @@ public class DataPackage implements PackageConstructor{
 		this.dynamicLength = dynamicLength;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T build(short length, boolean dynamicLength, byte[] byteDataRaw) {
-		return (T) new DataPackage(length, dynamicLength, byteDataRaw);
-	}
-	
+	/**
+	 * Returns the ID length used by all packages.<br>
+	 * 
+	 * Every package uses the first [IDLENGTH] byte as id to be recognized by the package manager.
+	 * 
+	 * */
 	public static short getIDLENGTH() {
 		return IDLENGTH;
 	}
 
+	/**
+	 * This will pack all the relevant information about the package into one byte array that can be send via a socket connection.
+	 * <br><br>
+	 * All packages consist of:<br><br>
+	 * [IDLENGTH] bytes for the ID<br>
+	 * [Length] bytes for the package length when using dynamic length<br>
+	 * [4] bytes with value of <b>length</b> for the package length when using non dynamic length<br>
+	 * [byteDataRaw] bytes of raw byte data<br>
+	 * <br>
+	 * Sample:<br>
+	 * <pre> ID	  Length	  RawData
+	 * [0x0 0x0][0x0 0x0 0x0 0x1][0x0]</pre>
+	 * 
+	 * @return byte[]
+	 * */
 	public byte[] pack() {
-		//TODO: DO stuff
-		byte[] l = DataPackage.getLengthFromInt(this.byteDataRaw.length, this.length);
+		byte[] l = new byte[4];
+		if(dynamicLength) {
+			l = DataPackage.getByteArrayFromInt(this.byteDataRaw.length, this.length);
+		}else {
+			l = DataPackage.getByteArrayFromInt(this.length, 4);
+		}
 		
 		byte[] out = new byte[IDLENGTH + l.length + this.byteDataRaw.length];
 		for(int i = 0; i < IDLENGTH; ++i) {
@@ -45,6 +64,9 @@ public class DataPackage implements PackageConstructor{
 		return out;
 	}
 	
+	/**
+	 * Cuts of all trailing 0 bytes.
+	 * */
 	public byte[] shorten(byte[] data) {
 		int to = 0;
 		for(int i = data.length-1; i >= 0; --i) {
@@ -62,6 +84,9 @@ public class DataPackage implements PackageConstructor{
 		return out;
 	}
 	
+	/**
+	 * Removes all bytes equal to <b>b</b> and cuts of all tailing 0 bytes.
+	 */
 	public byte[] strip(byte[] data, byte b) {
 		byte[] out = new byte[data.length];
 		for(int i = 0, j = 0; i < data.length; i++) {
@@ -70,6 +95,9 @@ public class DataPackage implements PackageConstructor{
 		return shorten(out);
 	}
 	
+	/**
+	 * Converts String to byte array.
+	 * */
 	public byte[] getAsByte(String s) {
 		byte[] out = new byte[s.length()];
 		for(int i = 0; i < s.length(); ++i) {
@@ -78,14 +106,26 @@ public class DataPackage implements PackageConstructor{
 		return out;
 	}
 	
-	public static byte[] getLengthFromInt(int l, int arrayLength) {
+	/**
+	 * Converts an integer to a byte array of length <b>arrayLength</b>
+	 * 
+	 * @param i Integer to be converted to a byte array
+	 * @param arrayLength length of the return array
+	 * */
+	public static byte[] getByteArrayFromInt(int i, int arrayLength) {
 		ByteBuffer buffer = ByteBuffer.allocate(arrayLength);
-		buffer.putInt(l);
+		buffer.putInt(i);
 		return buffer.array();
 	}
 	
+	/**
+	 * Converts a byte array to an integer.<br>
+	 * If the byte array is larger then 4 byte information might be lost.<br>
+	 * If the byte array is smaller then 1 or null the function will return <b>-1</b>
+	 * */
 	public static int getIntFromByte(byte[] b) {
 		ByteBuffer buffer = ByteBuffer.wrap(b);
+		if(b == null) return -1;
 		if(b.length < 4 && b.length > 1) {
 			return buffer.getShort();
 		}else if(b.length > 3) {
@@ -104,10 +144,6 @@ public class DataPackage implements PackageConstructor{
 		}
 		return out;
 	}
-	
-	public byte[] getByteData() {
-		return byteDataRaw;
-	}
 
 	public byte[] getByteDataRaw() {
 		return byteDataRaw;
@@ -125,6 +161,10 @@ public class DataPackage implements PackageConstructor{
 		return id;
 	}
 
+	/**
+	 * Sets the package id.<br>
+	 * the package id has to be <b>Datapackage.IDLENGTH</b> byte long.<br>
+	 * */
 	public void setId(byte[] id) {
 		this.id = id;
 	}
