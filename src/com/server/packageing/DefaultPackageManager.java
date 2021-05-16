@@ -1,11 +1,11 @@
 package com.server.packageing;
 
-import java.util.Set;
+import com.server.main.Server;
 
 public class DefaultPackageManager extends PackageManager{
 
-	public DefaultPackageManager(Set<PackageInfo> packages) {
-		super(packages);
+	public DefaultPackageManager(Server server, Class<? extends PackageManager> type) {
+		super(server, type);
 	}
 
 }

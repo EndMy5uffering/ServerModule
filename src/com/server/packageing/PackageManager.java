@@ -1,14 +1,17 @@
 package com.server.packageing;
 
 import java.util.HashMap;
-import java.util.Set;
+
+import com.server.main.Server;
 
 public abstract class PackageManager {
 
 	private HashMap<Integer, PackageInfo> PACKAGELOOKUP = new HashMap<>();
 	
-	public PackageManager(Set<PackageInfo> packages) {
-		if(packages != null) packages.forEach(x -> register(x));
+	public PackageManager(Server server, Class<? extends PackageManager> type) {
+		if(server == null || type == null)
+			throw new NullPointerException("Server and type can not be null!");
+		if(server != null) server.getPackageRegistrationManager().getAllPackagesForManager(type).forEach(x -> register(x));
 	}
 	
 	public void register(byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {

@@ -6,7 +6,7 @@ public enum Level {
 		@Override
 		String getColor() {
 			// TODO Auto-generated method stub
-			return "\033";
+			return "";
 		}
 	},
 	INFO{

@@ -66,7 +66,7 @@ public class Server {
 			this.packageRegistrationManager = new PackageRegistrationManager();
 		}
 		if(defaultPackageManager == null) {
-			this.defaultPackageManager = new DefaultPackageManager(this.packageRegistrationManager.getAllPackagesForManager(DefaultPackageManager.class));
+			this.defaultPackageManager = new DefaultPackageManager(this, DefaultPackageManager.class);
 		}else {
 			this.defaultPackageManager = defaultPackageManager;
 		}

@@ -186,4 +186,28 @@ public class ClientConnection{
 	public void setCallback(ClientCallBack callback) {
 		this.callback = callback;
 	}
+
+	public PackageManager getPackageManager() {
+		return packageManager;
+	}
+
+	public void setPackageManager(PackageManager packageManager) {
+		this.packageManager = packageManager;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public Server getServer() {
+		return server;
+	}
 }
