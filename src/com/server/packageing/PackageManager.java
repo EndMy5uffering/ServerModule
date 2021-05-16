@@ -1,26 +1,14 @@
 package com.server.packageing;
 
 import java.util.HashMap;
+import java.util.Set;
 
-import com.server.basepackages.CloseConnection;
-import com.server.basepackages.KeepAlive;
-import com.server.basepackages.MessagePackage;
-import com.server.basepackages.PostData;
-import com.server.basepackages.ReconnectPackage;
-import com.server.basepackages.RequestData;
-
-
-public class PackageManager {
+public abstract class PackageManager {
 
 	private HashMap<Integer, PackageInfo> PACKAGELOOKUP = new HashMap<>();
 	
-	public PackageManager() {
-		register(CloseConnection.ID, CloseConnection.PACK_LENGTH, CloseConnection.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new CloseConnection();});
-		register(KeepAlive.ID, KeepAlive.PACK_LENGTH, KeepAlive.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new KeepAlive();});
-		register(MessagePackage.ID, MessagePackage.PACK_LENGTH, MessagePackage.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new MessagePackage(b);});
-		register(PostData.ID, PostData.PACK_LENGTH, PostData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new PostData(b);});
-		register(ReconnectPackage.ID, ReconnectPackage.PACK_LENGTH, ReconnectPackage.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new ReconnectPackage(b);});
-		register(RequestData.ID, RequestData.PACK_LENGTH, RequestData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new RequestData(b);});
+	public PackageManager(Set<PackageInfo> packages) {
+		if(packages != null) packages.forEach(x -> register(x));
 	}
 	
 	public void register(byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {

@@ -9,14 +9,17 @@ import com.logger.Logger;
 import com.logger.PrintMode;
 import com.logger.PrintingType;
 import com.server.packageing.DataPackage;
+import com.server.packageing.DefaultPackageManager;
 import com.server.packageing.PackageManager;
+import com.server.packageing.PackageRegistrationManager;
 
 public class Server {
 
 	public static Logger logger = new Logger(PrintingType.Console, PrintMode.Event);
 	
-	private final PackageManager packageManager;
 	private final ClientManager clientManager;
+	private final PackageManager defaultPackageManager;
+	private final PackageRegistrationManager packageRegistrationManager;
 	
 	private final int port;
 	
@@ -34,14 +37,39 @@ public class Server {
 	private static int maxPackageSize = 2048;
 	
 	public Server(int port) {
-		this(port, null);
+		this(port, null, null, null);
 	}
 	
-	public Server(int port, ClientCallBack clientCallBack) {
+	public Server(int port, PackageManager packageManager) {
+		this(port, packageManager, null, null);
+	}
+	
+	public Server(int port, PackageManager packageManager, PackageRegistrationManager packageRegistrationManager) {
+		this(port, packageManager, packageRegistrationManager, null);
+	}
+	
+	public Server(int port, ClientCallBack defaultClientCallback) {
+		this(port, null, null, defaultClientCallback);
+	}
+	
+	public Server(int port, PackageRegistrationManager packageRegistrationManager) {
+		this(port, null, packageRegistrationManager, null);
+	}
+	
+	public Server(int port, PackageManager defaultPackageManager, PackageRegistrationManager packageRegistrationManager, ClientCallBack clientCallBack) {
 		this.port = port;
-		packageManager = new PackageManager();
 		this.callback = clientCallBack;
 		this.clientManager = new ClientManager();
+		if(packageRegistrationManager != null) {
+			this.packageRegistrationManager = packageRegistrationManager;
+		}else {
+			this.packageRegistrationManager = new PackageRegistrationManager();
+		}
+		if(defaultPackageManager == null) {
+			this.defaultPackageManager = new DefaultPackageManager(this.packageRegistrationManager.getAllPackagesForManager(DefaultPackageManager.class));
+		}else {
+			this.defaultPackageManager = defaultPackageManager;
+		}
 	}
 	
 	
@@ -70,7 +98,7 @@ public class Server {
 					Socket s = serverSocket.accept();
 					logger.log(Level.INFO, "Client connecting " + s.getInetAddress().getHostAddress());
 					if(s != null) {
-						newConnection = new ClientConnection(s, this, this.clientTimeOut, callback);
+						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, callback);
 						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
@@ -171,13 +199,20 @@ public class Server {
 		Server.maxPackageSize = maxPackageSize;
 	}
 
-
-	public PackageManager getPackageManager() {
-		return packageManager;
-	}
-
 	public ClientManager getClientManager() {
 		return clientManager;
+	}
+
+	public PackageRegistrationManager getPackageRegistrationManager() {
+		return packageRegistrationManager;
+	}
+
+	public PackageManager getDefaultPackageManager() {
+		return defaultPackageManager;
+	}
+
+	public int getPort() {
+		return port;
 	}
 	
 }

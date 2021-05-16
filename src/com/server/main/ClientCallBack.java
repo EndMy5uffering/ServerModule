@@ -9,6 +9,6 @@ public interface ClientCallBack {
 	 * 
 	 * @param data received data package form the client connection.
 	 * */
-	void call(DataPackage data);
+	void call(DataPackage data, ClientConnection connection);
 	
 }

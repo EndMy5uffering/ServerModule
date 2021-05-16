@@ -9,6 +9,7 @@ import java.net.SocketException;
 import com.logger.Level;
 import com.server.packageing.DataPackage;
 import com.server.packageing.PackageInfo;
+import com.server.packageing.PackageManager;
 
 enum State{
 	Active,
@@ -19,6 +20,7 @@ public class ClientConnection{
 
 	private Socket socket;
 	private Server server;
+	private PackageManager packageManager;
 	
 	private Thread clientThread;
 
@@ -29,10 +31,11 @@ public class ClientConnection{
 	
 	private ClientCallBack callback = null;
 	
-	public ClientConnection(Socket socket, Server server, int timeout, ClientCallBack callback) {
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout, ClientCallBack callback) {
 		if(socket == null) {
 			this.state = State.Dead;
 		}
+		this.packageManager = packageManager;
 		this.callback = callback;
 		this.socket = socket;
 		this.server = server;
@@ -57,12 +60,12 @@ public class ClientConnection{
 		this.state = State.Active;
 	}
 	
-	public ClientConnection(Socket socket, Server server, int timeout){
-		this(socket, server, timeout, null);
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout){
+		this(socket, server, packageManager, timeout, null);
 	}
 	
-	public ClientConnection(Socket socket, Server server){
-		this(socket, server, -1, null);
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager){
+		this(socket, server, packageManager, -1, null);
 	}
 	
 	/**
@@ -85,7 +88,7 @@ public class ClientConnection{
 					byte[] data = new byte[DataPackage.IDLENGTH];
 					
 					reader.read(data);
-					PackageInfo info = this.server.getPackageManager().getPackageInfo(data);
+					PackageInfo info = this.packageManager.getPackageInfo(data);
 					
 					if(info == null) {
 						Server.logger.log(Level.ERROR, "Unknown package recived by: " + socket.getInetAddress().toString());
@@ -116,8 +119,8 @@ public class ClientConnection{
 					
 					}
 					
-					if(callback != null && dataOut != null) callback.call(dataOut);
-					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut);
+					if(callback != null && dataOut != null) callback.call(dataOut, this);
+					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut, this);
 				}
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());
