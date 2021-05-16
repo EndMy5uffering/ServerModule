@@ -88,6 +88,11 @@ public class ClientConnection{
 					byte[] data = new byte[DataPackage.IDLENGTH];
 					
 					reader.read(data);
+					if(packageManager == null) {
+						server.getLogger().log(Level.ERROR, "Package manager can not be null!");
+						disable();
+						return;
+					}
 					PackageInfo info = this.packageManager.getPackageInfo(data);
 					
 					if(info == null) {
@@ -121,6 +126,7 @@ public class ClientConnection{
 					
 					if(callback != null && dataOut != null) callback.call(dataOut, this);
 					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut, this);
+					if(this.state != State.Active) return;
 				}
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());

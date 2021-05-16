@@ -67,6 +67,26 @@ public class PackageRegistrationManager {
 		return null;
 	}
 	
+	public void clearPackageManager(Class<? extends PackageManager> type) {
+		this.REGISTERED_PACKAGES.put(type, new HashSet<>());
+	}
+	
+	public void setPackageCallBack(Class<? extends PackageManager> type, byte[] id, PackageCallBack callback) {
+		setPackageCallBack(type, DataPackage.getIntFromByte(id), callback);
+	}
+	
+	public void setPackageCallBack(Class<? extends PackageManager> type, int id, PackageCallBack callback) {
+		if(getPackageInfo(type, id) == null) {
+			throw new IllegalArgumentException("Could not find package with id: " + id);
+		}
+		PackageInfo info = getPackageInfo(type, id);
+		Set<PackageInfo> set = getAllPackagesForManager(type);
+		set.remove(info);
+		info.setCallback(callback);
+		set.add(info);
+		REGISTERED_PACKAGES.put(type, set);
+	}
+	
 	public Set<PackageInfo> getAllPackagesForManager(Class<? extends PackageManager> type){
 		if(REGISTERED_PACKAGES.get(type) != null) return REGISTERED_PACKAGES.get(type);
 		return new HashSet<>(); 

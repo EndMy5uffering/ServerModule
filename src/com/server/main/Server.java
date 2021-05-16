@@ -65,10 +65,10 @@ public class Server {
 		}else {
 			this.packageRegistrationManager = new PackageRegistrationManager();
 		}
-		if(defaultPackageManager == null) {
-			this.defaultPackageManager = new DefaultPackageManager(this, DefaultPackageManager.class);
-		}else {
+		if(defaultPackageManager != null) {
 			this.defaultPackageManager = defaultPackageManager;
+		}else {
+			this.defaultPackageManager = new DefaultPackageManager(this);
 		}
 	}
 	

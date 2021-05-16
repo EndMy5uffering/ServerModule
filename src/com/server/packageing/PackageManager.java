@@ -50,6 +50,10 @@ public abstract class PackageManager {
 		PACKAGELOOKUP.put(id, info);
 	}
 	
+	public void clearPackages() {
+		this.PACKAGELOOKUP.clear();
+	}
+	
 	public PackageInfo getPackageInfo(byte[] id) {
 		return getPackageInfo(DataPackage.getIntFromByte(id));
 	}
