@@ -1,5 +1,6 @@
 package com.server.packageing;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import com.server.basepackages.MessagePackage;
 import com.server.basepackages.PostData;
 import com.server.basepackages.ReconnectPackage;
 import com.server.basepackages.RequestData;
+import com.server.main.Server;
 
 public class PackageRegistrationManager {
 
@@ -22,6 +24,40 @@ public class PackageRegistrationManager {
 		register(DefaultPackageManager.class, PostData.ID, PostData.PACK_LENGTH, PostData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new PostData(b);});
 		register(DefaultPackageManager.class, ReconnectPackage.ID, ReconnectPackage.PACK_LENGTH, ReconnectPackage.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new ReconnectPackage(b);});
 		register(DefaultPackageManager.class, RequestData.ID, RequestData.PACK_LENGTH, RequestData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new RequestData(b);});
+	}
+	
+	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct) {
+		register(type, pack, construct, null);
+	}
+	
+	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+		
+		Field[] fields = pack.getDeclaredFields();
+		byte[] id = null;
+		short length = -1;
+		boolean dynLength = false;
+		try {
+			for(Field f : fields) {
+				switch(f.getName().toLowerCase()) {
+				case "id":
+						id = (byte[]) f.get(f);
+					break;
+				case "pack_length":
+					length = f.getShort(f);
+					break;
+				case "is_dynamic_length":
+					dynLength = f.getBoolean(f);
+					break;
+					default:
+						break;
+				}
+			}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		if(id == null || length == -1)
+			throw new NullPointerException("Variable were not inizialized. If you want to use this function declair the feelds(byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH)");
+		register(type, id, length, dynLength, construct, packageCallBack);
 	}
 	
 	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {

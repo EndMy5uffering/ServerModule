@@ -18,7 +18,7 @@ public class Server {
 	public static Logger logger = new Logger(PrintingType.Console, PrintMode.Event);
 	
 	private final ClientManager clientManager;
-	private final PackageManager defaultPackageManager;
+	private PackageManager defaultPackageManager;
 	private final PackageRegistrationManager packageRegistrationManager;
 	
 	private final int port;
@@ -37,26 +37,18 @@ public class Server {
 	private static int maxPackageSize = 2048;
 	
 	public Server(int port) {
-		this(port, null, null, null);
-	}
-	
-	public Server(int port, PackageManager packageManager) {
-		this(port, packageManager, null, null);
-	}
-	
-	public Server(int port, PackageManager packageManager, PackageRegistrationManager packageRegistrationManager) {
-		this(port, packageManager, packageRegistrationManager, null);
-	}
-	
-	public Server(int port, ClientCallBack defaultClientCallback) {
-		this(port, null, null, defaultClientCallback);
+		this(port, null, null);
 	}
 	
 	public Server(int port, PackageRegistrationManager packageRegistrationManager) {
-		this(port, null, packageRegistrationManager, null);
+		this(port, packageRegistrationManager, null);
 	}
 	
-	public Server(int port, PackageManager defaultPackageManager, PackageRegistrationManager packageRegistrationManager, ClientCallBack clientCallBack) {
+	public Server(int port, ClientCallBack defaultClientCallback) {
+		this(port, null, defaultClientCallback);
+	}
+	
+	public Server(int port, PackageRegistrationManager packageRegistrationManager, ClientCallBack clientCallBack) {
 		this.port = port;
 		this.callback = clientCallBack;
 		this.clientManager = new ClientManager();
@@ -65,11 +57,7 @@ public class Server {
 		}else {
 			this.packageRegistrationManager = new PackageRegistrationManager();
 		}
-		if(defaultPackageManager != null) {
-			this.defaultPackageManager = defaultPackageManager;
-		}else {
-			this.defaultPackageManager = new DefaultPackageManager(this);
-		}
+		this.defaultPackageManager = new DefaultPackageManager(this);
 	}
 	
 	
@@ -213,6 +201,10 @@ public class Server {
 
 	public int getPort() {
 		return port;
+	}
+
+	public void setDefaultPackageManager(PackageManager defaultPackageManager) {
+		this.defaultPackageManager = defaultPackageManager;
 	}
 	
 }
