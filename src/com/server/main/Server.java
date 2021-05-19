@@ -8,6 +8,7 @@ import com.logger.Level;
 import com.logger.Logger;
 import com.logger.PrintMode;
 import com.logger.PrintingType;
+import com.server.packageing.ClientConnectCallback;
 import com.server.packageing.DataPackage;
 import com.server.packageing.DefaultPackageManager;
 import com.server.packageing.PackageManager;
@@ -28,6 +29,7 @@ public class Server {
 	private Thread serverThread;
 	
 	private ClientCallBack callback = null;
+	private ClientConnectCallback clientConnectCallback= null;
 	
 	private int clientTimeOut = -1;
 	private int defaultErrorOut = 500;
@@ -205,6 +207,14 @@ public class Server {
 
 	public void setDefaultPackageManager(PackageManager defaultPackageManager) {
 		this.defaultPackageManager = defaultPackageManager;
+	}
+
+	public ClientConnectCallback getClientConnectCallback() {
+		return clientConnectCallback;
+	}
+
+	public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
+		this.clientConnectCallback = clientConnectCallback;
 	}
 	
 }

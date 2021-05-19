@@ -21,6 +21,8 @@ class ClientManager {
 	public void submit(ClientConnection connection) {
 		connecitons.add(connection);
 		connection.enable();
+		if(connection.getServer().getClientConnectCallback() != null)
+			connection.getServer().getClientConnectCallback().call(connection);
 	}
 	
 	/**
