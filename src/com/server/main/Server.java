@@ -3,6 +3,8 @@ package com.server.main;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.logger.Level;
 import com.logger.Logger;
@@ -28,7 +30,7 @@ public class Server {
 	
 	private Thread serverThread;
 	
-	private ClientCallBack callback = null;
+	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private ClientConnectCallback clientConnectCallback= null;
 	
 	private int clientTimeOut = -1;
@@ -39,20 +41,11 @@ public class Server {
 	private static int maxPackageSize = 2048;
 	
 	public Server(int port) {
-		this(port, null, null);
+		this(port, null);
 	}
 	
 	public Server(int port, PackageRegistrationManager packageRegistrationManager) {
-		this(port, packageRegistrationManager, null);
-	}
-	
-	public Server(int port, ClientCallBack defaultClientCallback) {
-		this(port, null, defaultClientCallback);
-	}
-	
-	public Server(int port, PackageRegistrationManager packageRegistrationManager, ClientCallBack clientCallBack) {
 		this.port = port;
-		this.callback = clientCallBack;
 		this.clientManager = new ClientManager();
 		if(packageRegistrationManager != null) {
 			this.packageRegistrationManager = packageRegistrationManager;
@@ -84,11 +77,11 @@ public class Server {
 			while(IsAlive) {
 				ClientConnection newConnection;
 				try {
-					logger.log(Level.INFO, "Waiting for connection");
 					Socket s = serverSocket.accept();
 					logger.log(Level.INFO, "Client connecting " + s.getInetAddress().getHostAddress());
 					if(s != null) {
-						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, callback);
+						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut);
+						newConnection.setClientPackageReceiveCallback(callback);
 						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
@@ -134,8 +127,10 @@ public class Server {
 	 * 
 	 * @param callback The callback function that will be executed.
 	 * */
-	public void setDefaultClientCallBack(ClientCallBack callback) {
-		this.callback = callback;
+	public void addDefaultClientPackageReceiveCallback(ClientPackageReceiveCallback... callback) {
+		if(callback != null)
+			for(ClientPackageReceiveCallback e : callback)
+				this.callback.add(e);
 	}
 	
 	/**

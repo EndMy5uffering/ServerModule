@@ -5,11 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.logger.Level;
 import com.server.packageing.DataPackage;
 import com.server.packageing.PackageInfo;
 import com.server.packageing.PackageManager;
+
 
 enum State{
 	Active,
@@ -29,14 +32,13 @@ public class ClientConnection{
 	private OutputStream out;
 	private InputStream reader;
 	
-	private ClientCallBack callback = null;
+	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout, ClientCallBack callback) {
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout) {
 		if(socket == null) {
 			this.state = State.Dead;
 		}
 		this.packageManager = packageManager;
-		this.callback = callback;
 		this.socket = socket;
 		this.server = server;
 		
@@ -60,12 +62,8 @@ public class ClientConnection{
 		this.state = State.Active;
 	}
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout){
-		this(socket, server, packageManager, timeout, null);
-	}
-	
 	public ClientConnection(Socket socket, Server server, PackageManager packageManager){
-		this(socket, server, packageManager, -1, null);
+		this(socket, server, packageManager, -1);
 	}
 	
 	/**
@@ -124,7 +122,7 @@ public class ClientConnection{
 					
 					}
 					
-					if(callback != null && dataOut != null) callback.call(dataOut, this);
+					for(ClientPackageReceiveCallback event : callback) event.call(dataOut, this);
 					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut, this);
 					if(this.state != State.Active) return;
 				}
@@ -182,14 +180,18 @@ public class ClientConnection{
 	/**
 	 * Returns the default callback set by the server when the object was created.
 	 * */
-	public ClientCallBack getCallback() {
+	public List<ClientPackageReceiveCallback> getClientPackageReceiveCallbacks() {
 		return callback;
 	}
 
 	/**
-	 * Sets the default callback for the connection.
+	 * Adds an event listener for the package receive event.
 	 * */
-	public void setCallback(ClientCallBack callback) {
+	public void addClientPackageReceiveCallback(ClientPackageReceiveCallback callback) {
+		this.callback.add(callback);
+	}
+	
+	public void setClientPackageReceiveCallback(List<ClientPackageReceiveCallback> callback) {
 		this.callback = callback;
 	}
 

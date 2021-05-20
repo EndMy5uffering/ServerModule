@@ -2,7 +2,7 @@ package com.server.main;
 
 import com.server.packageing.DataPackage;
 
-public interface ClientCallBack {
+public interface ClientPackageReceiveCallback {
 
 	/**
 	 * Callback interface to allow the client connection to inform the server about received packages.
