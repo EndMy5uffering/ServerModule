@@ -46,7 +46,7 @@ public class Server {
 	
 	public Server(int port, PackageRegistrationManager packageRegistrationManager) {
 		this.port = port;
-		this.clientManager = new ClientManager();
+		this.clientManager = new ClientManager(this);
 		if(packageRegistrationManager != null) {
 			this.packageRegistrationManager = packageRegistrationManager;
 		}else {
@@ -65,7 +65,7 @@ public class Server {
 		logger.log(Level.INFO, "Starting server");
 		
 		try {
-			logger.log(Level.INFO, "Binding server to port");
+			logger.log(Level.INFO, "Binding server to port: " + port);
 			serverSocket = new ServerSocket(this.port);
 		} catch (IOException e) {
 			logger.log(Level.ERROR, "Could not bind server to port!", e.getClass());

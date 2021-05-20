@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.logger.Level;
 import com.server.basepackages.CloseConnection;
 import com.server.basepackages.KeepAlive;
 import com.server.basepackages.MessagePackage;
 import com.server.basepackages.PostData;
 import com.server.basepackages.ReconnectPackage;
+import com.server.basepackages.RemoteClosedConnection;
 import com.server.basepackages.RequestData;
 import com.server.main.Server;
 
@@ -18,12 +20,15 @@ public class PackageRegistrationManager {
 	private HashMap<Class<? extends PackageManager>, Set<PackageInfo>> REGISTERED_PACKAGES = new HashMap<>();
 	
 	public PackageRegistrationManager() {
-		register(DefaultPackageManager.class, CloseConnection.ID, CloseConnection.PACK_LENGTH, CloseConnection.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new CloseConnection();});
-		register(DefaultPackageManager.class, KeepAlive.ID, KeepAlive.PACK_LENGTH, KeepAlive.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new KeepAlive();});
-		register(DefaultPackageManager.class, MessagePackage.ID, MessagePackage.PACK_LENGTH, MessagePackage.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new MessagePackage(b);});
-		register(DefaultPackageManager.class, PostData.ID, PostData.PACK_LENGTH, PostData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new PostData(b);});
-		register(DefaultPackageManager.class, ReconnectPackage.ID, ReconnectPackage.PACK_LENGTH, ReconnectPackage.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new ReconnectPackage(b);});
-		register(DefaultPackageManager.class, RequestData.ID, RequestData.PACK_LENGTH, RequestData.IS_DYNAMIC_LENGTH, (l,d,b) -> {return new RequestData(b);});
+		register(DefaultPackageManager.class, CloseConnection.class, (l,d,b) -> {return new CloseConnection();});
+		register(DefaultPackageManager.class, KeepAlive.class, (l,d,b) -> {return new KeepAlive();});
+		register(DefaultPackageManager.class, MessagePackage.class, (l,d,b) -> {return new MessagePackage(b);});
+		register(DefaultPackageManager.class, PostData.class, (l,d,b) -> {return new PostData(b);});
+		register(DefaultPackageManager.class, ReconnectPackage.class, (l,d,b) -> {return new ReconnectPackage(b);});
+		register(DefaultPackageManager.class, RequestData.class, (l,d,b) -> {return new RequestData(b);});
+		register(DefaultPackageManager.class, RemoteClosedConnection.class, (l,d,b) -> {return new RemoteClosedConnection();}, (data, con) -> {
+			con.disable(Level.INFO, "Remote closed connection! Stream ended.");
+		});
 	}
 	
 	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct) {

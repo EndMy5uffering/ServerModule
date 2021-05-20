@@ -3,14 +3,17 @@ package com.server.main;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.logger.Level;
 import com.server.packageing.DataPackage;
 
 class ClientManager {
 
 	private List<ClientConnection> connecitons = new ArrayList<>();
+	private Server server;
 	
-	public ClientManager() {
-		
+	
+	public ClientManager(Server server) {
+		this.server = server;
 	}
 	
 	/**
@@ -44,6 +47,7 @@ class ClientManager {
 	 * */
 	public synchronized void removeClient(ClientConnection client) {
 		connecitons.remove(client);
+		server.getLogger().log(Level.INFO, "Client connection discarded for: " + client.getSocket().getInetAddress().getHostAddress());
 	}
 	
 	
