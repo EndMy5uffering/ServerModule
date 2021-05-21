@@ -10,7 +10,7 @@ public class CloseConnection extends DataPackage{
 	
 	public CloseConnection() {
 		super(PACK_LENGTH, IS_DYNAMIC_LENGTH, new byte[0]);
-		this.setId(ID);
+	    this.setId(ID);
 	}
 	
 	

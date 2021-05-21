@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.logger.Level;
 import com.logger.Logger;
@@ -80,7 +81,7 @@ public class Server {
 					Socket s = serverSocket.accept();
 					logger.log(Level.INFO, "Client connecting " + s.getInetAddress().getHostAddress());
 					if(s != null) {
-						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut);
+						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, UUID.randomUUID());
 						newConnection.setClientPackageReceiveCallback(callback);
 						this.clientManager.submit(newConnection);
 					}

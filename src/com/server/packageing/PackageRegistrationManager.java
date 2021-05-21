@@ -13,7 +13,6 @@ import com.server.basepackages.PostData;
 import com.server.basepackages.ReconnectPackage;
 import com.server.basepackages.RemoteClosedConnection;
 import com.server.basepackages.RequestData;
-import com.server.main.Server;
 
 public class PackageRegistrationManager {
 
@@ -31,11 +30,49 @@ public class PackageRegistrationManager {
 		});
 	}
 	
+	/**
+	 * Registers a package for a given PackageManager.<br>
+	 * <br>
+	 * This function uses reflection to access the fields <b>byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH</b>.
+	 * <br><br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * @throws NullPointerException When <b>type == null</b> or <b>pack == null</b> or <b>construct == null</b>
+	 * @throws NullPointerException When fields <b>ID, PACK_LENGTH, IS_DYNAMIC_LENGTH</b> are not declared.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param pack The .class type of the package that will be register under the give type of package manager.
+	 * @param construct a constructor function for the package manager.
+	 * */
 	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct) {
 		register(type, pack, construct, null);
 	}
 	
+	/**
+	 * Registers a package for a given PackageManager.<br>
+	 * <br>
+	 * This function uses reflection to access the fields <b>byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH</b>.
+	 * <br><br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * @throws NullPointerException When <b>type == null</b> or <b>pack == null</b> or <b>construct == null</b>
+	 * @throws NullPointerException When fields <b>ID, PACK_LENGTH, IS_DYNAMIC_LENGTH</b> are not declared.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param pack The .class type of the package that will be register under the give type of package manager.
+	 * @param construct a constructor function for the package manager.
+	 * @param packageCallBack Package callback function. Can be null.
+	 * */
 	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+		
+		if(construct == null)
+			throw new NullPointerException("Constructor can not be null!");
+		if(type == null)
+			throw new NullPointerException("Type can not be null!");
+		if(pack == null)
+			throw new NullPointerException("Package can not be null!");
 		
 		Field[] fields = pack.getDeclaredFields();
 		byte[] id = null;
@@ -59,20 +96,74 @@ public class PackageRegistrationManager {
 			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
+			return;
 		}
 		if(id == null || length == -1)
 			throw new NullPointerException("Variable were not inizialized. If you want to use this function declair the feelds(byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH)");
 		register(type, id, length, dynLength, construct, packageCallBack);
 	}
 	
+	/**
+	 * Registers a package for a given PackageManager.<br>
+	 * <br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * @throws IllegalArgumentException When <b>info.getId() == null</b> or <b>info.getId().length < </b>
+	 * @throws IllegalArgumentException When <b>info.getId().length > DataPackage.IDLENGTH</b>
+	 * @throws IllegalArgumentException When <b>info.getLength() < 0</b>
+	 * @throws NullPointerException When <b>info.getConstruct() == null</b>
+	 * @throws IllegalArgumentException When a package with the given id has already been registered for the given type.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param id A byte array containing the id of the package like: {0x0, 0x1} for a package with id 1.
+	 * @param length the static length of the package or the number of bytes associated with the length in the package.
+	 * @param dynamicLength Modifier for the dynamic length
+	 * @param construct a wrapper function for a package constructor.
+	 * */
 	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {
 		register(type, id, length, dynamicLength, construct, null);
 	}
 	
+	/**
+	 * Registers a package for a given PackageManager.<br>
+	 * <br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * The callback function can be written as a lambda function like:<br>
+	 * (data, connection) -> {"Something to execute..."};
+	 * <br>
+	 * @throws IllegalArgumentException When <b>info.getId() == null</b> or <b>info.getId().length < </b>
+	 * @throws IllegalArgumentException When <b>info.getId().length > DataPackage.IDLENGTH</b>
+	 * @throws IllegalArgumentException When <b>info.getLength() < 0</b>
+	 * @throws NullPointerException When <b>info.getConstruct() == null</b>
+	 * @throws IllegalArgumentException When a package with the given id has already been registered for the given type.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param id A byte array containing the id of the package like: {0x0, 0x1} for a package with id 1.
+	 * @param length the static length of the package or the number of bytes associated with the length in the package.
+	 * @param dynamicLength Modifier for the dynamic length
+	 * @param construct a wrapper function for a package constructor.
+	 * @param packageCallBack a callback function executed by the package when received.
+	 * */
 	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
 		register(type, new PackageInfo(id, length, dynamicLength, construct, packageCallBack));
 	}
 	
+	
+	/**
+	 * Registers a package for a given PackageManager.<br>
+	 * <br>
+	 * @throws IllegalArgumentException When <b>info.getId() == null</b> or <b>info.getId().length < </b>
+	 * @throws IllegalArgumentException When <b>info.getId().length > DataPackage.IDLENGTH</b>
+	 * @throws IllegalArgumentException When <b>info.getLength() < 0</b>
+	 * @throws NullPointerException When <b>info.getConstruct() == null</b>
+	 * @throws IllegalArgumentException When a package with the given id has already been registered for the given type.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param info A PackageInfo object that contains the basic information about a specific package.
+	 * */
 	public void register(Class<? extends PackageManager> type, PackageInfo info) {
 		if(info.getId() == null || info.getId().length <= 0) 
 			throw new IllegalArgumentException("The package id can not be smaller or equal to 0! The package id has to be " + DataPackage.IDLENGTH + " byte long!");
@@ -108,18 +199,46 @@ public class PackageRegistrationManager {
 		return null;
 	}
 	
+	/**
+	 * Clears all packages registered for the given type.
+	 * */
 	public void clearPackageManager(Class<? extends PackageManager> type) {
 		this.REGISTERED_PACKAGES.put(type, new HashSet<>());
 	}
 	
+	/**
+	 * Sets package callback function.
+	 * 
+	 * The callback function can be written as a lambda function like:<br>
+	 * (data, connection) -> {"Something to execute..."};
+	 * 
+	 * @throws IllegalArgumentException When no package was found for the given id.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param id A byte array of the id.
+	 * @param callback The callback function.
+	 * */
 	public void setPackageCallBack(Class<? extends PackageManager> type, byte[] id, PackageCallBack callback) {
 		setPackageCallBack(type, DataPackage.getIntFromByte(id), callback);
 	}
 	
+	/**
+	 * Sets package callback function.
+	 * 
+	 * The callback function can be written as a lambda function like:<br>
+	 * (data, connection) -> {"Something to execute..."};
+	 * 
+	 * @throws IllegalArgumentException When no package was found for the given id.
+	 * 
+	 * @param type The .class type of the package manager for the package to be registered under.
+	 * @param id The package id.
+	 * @param callback The callback function.
+	 * */
 	public void setPackageCallBack(Class<? extends PackageManager> type, int id, PackageCallBack callback) {
-		if(getPackageInfo(type, id) == null) {
+		if(getPackageInfo(type, id) == null) 
 			throw new IllegalArgumentException("Could not find package with id: " + id);
-		}
+		if(callback == null)
+			throw new IllegalArgumentException("Callback can not be null!");
 		PackageInfo info = getPackageInfo(type, id);
 		Set<PackageInfo> set = getAllPackagesForManager(type);
 		set.remove(info);

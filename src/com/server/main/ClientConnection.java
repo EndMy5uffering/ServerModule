@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.logger.Level;
 import com.server.packageing.DataPackage;
@@ -21,6 +22,9 @@ enum State{
 
 public class ClientConnection{
 
+	private final UUID id;
+	private String connectionName = "";
+	
 	private Socket socket;
 	private Server server;
 	private PackageManager packageManager;
@@ -34,7 +38,11 @@ public class ClientConnection{
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout) {
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, UUID uuid){
+		this(socket, server, packageManager, -1, uuid);
+	}
+	
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout, UUID uuid) {
 		if(socket == null) {
 			this.state = State.Dead;
 		}
@@ -58,19 +66,16 @@ public class ClientConnection{
 				Server.logger.log(Level.ERROR, e, e.getClass());
 			}
 		}
-		
+		this.id = uuid;
 		this.state = State.Active;
 	}
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager){
-		this(socket, server, packageManager, -1);
-	}
 	
 	/**
 	 * Enables the client connection and starts the client thread.<br>
 	 * When enabled the client connection will listen to incoming packages.<br>
-	 * All received packages are relayed back to the server or the API via the callback functions.<br>
-	 * All packages can define there on callback function or the default server callback can be used.<br>
+	 * All received packages are relayed back via the callback functions.<br>
+	 * All packages can also define there on callback function.<br>
 	 * <br>
 	 * 
 	 * <b>The client will be automatically disconnected when a faulty package is received.</b>
@@ -114,7 +119,9 @@ public class ClientConnection{
 							rawData = new byte[length];
 							reader.read(rawData);
 						}else if(length > Server.getMaxPackageSize() || length < 0) {
-							Server.logger.log(Level.ERROR, "Size missmatch packages have to be larger or equal to 0 and smaller to max package length!");
+							Server.logger.log(Level.ERROR, "Size missmatch!");
+							Server.logger.log(Level.ERROR, "PackageID: \t" + DataPackage.getIntFromByte(info.getId()));
+							Server.logger.log(Level.ERROR, "Length: \t" + length);
 							break;
 						}
 					
@@ -165,7 +172,7 @@ public class ClientConnection{
 	 * Disables the client connection and stops all the in and output streams and removes the connection form the manager.
 	 * */
 	public void disable() {
-		Server.logger.log(Level.INFO, "Disableing connection for: " + socket.getInetAddress().toString());
+		Server.logger.log(Level.INFO, "Disabling connection for: " + socket.getInetAddress().toString());
 		this.state = State.Dead;
 		try {
 			if(socket != null) this.socket.close();
@@ -178,19 +185,26 @@ public class ClientConnection{
 	}
 
 	/**
-	 * Returns the default callback set by the server when the object was created.
+	 * Returns the list of callback function for received packages.
 	 * */
 	public List<ClientPackageReceiveCallback> getClientPackageReceiveCallbacks() {
 		return callback;
 	}
 
 	/**
-	 * Adds an event listener for the package receive event.
+	 * Adds a callback function for the client to call when a package has been received.
+	 * 
+	 * @param callback A callback function that takes the <b>package</b> as <b>DataPackage</b> and the <b>connection</b>.
 	 * */
 	public void addClientPackageReceiveCallback(ClientPackageReceiveCallback callback) {
 		this.callback.add(callback);
 	}
 	
+	/**
+	 * Sets the list of callback functions for the connection to invoke when a package has been received.
+	 * 
+	 * @param callback A list of callback functions that takes the <b>package</b> as <b>DataPackage</b> and the <b>connection</b>.
+	 * */
 	public void setClientPackageReceiveCallback(List<ClientPackageReceiveCallback> callback) {
 		this.callback = callback;
 	}
@@ -199,7 +213,16 @@ public class ClientConnection{
 		return packageManager;
 	}
 
+	/**
+	 * Sets the package manager for the client connection.<br>
+	 * 
+	 * @param packageManager The package manager that will be used by the connection. <b>Can not be null!</b>
+	 * 
+	 * @throws NullPointerException When packageManager == null
+	 * */
 	public void setPackageManager(PackageManager packageManager) {
+		if(packageManager == null)
+			throw new NullPointerException("Package Manager can not be null!");
 		this.packageManager = packageManager;
 	}
 
@@ -217,5 +240,33 @@ public class ClientConnection{
 
 	public Server getServer() {
 		return server;
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	public String getConnectionName() {
+		return connectionName;
+	}
+
+	/**
+	 * Sets the name for the connection for better access.<br>
+	 * The name can be used to identify the connection in the <b>ClientManager</b>.<br>
+	 * <br>
+	 * When giving a name to the connection the client automatically registers the name in the ClientManager.
+	 * 
+	 * @param connectionName The name of the connection. <b>The name has to be unique!</b>
+	 * @throws IllegalAccessException When the connection was already named.
+	 * @throws NullPointerException When connectionName == null or connectionName == ""
+	 * 
+	 * */
+	public void setConnectionName(String connectionName) throws IllegalAccessException {
+		if(connectionName == "" || connectionName == null)
+			throw new NullPointerException("A conneciton name can not be null or empty!");
+		if(server.getClientManager().getClientConnection(this.connectionName) != null)
+			throw new IllegalAccessException("The name of a connection can not be changed when it has been set!");
+		
+		this.connectionName = connectionName;
 	}
 }

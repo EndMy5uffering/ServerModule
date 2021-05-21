@@ -195,7 +195,7 @@ public class DatabaseManager {
 		}
 	}
 	
-	public ResultSet getData(String querry) throws SQLException {
+	public synchronized ResultSet getData(String querry) throws SQLException {
 		Statement stmt = connection.createStatement();
 		ResultSet out = stmt.executeQuery(querry);
 		return out;

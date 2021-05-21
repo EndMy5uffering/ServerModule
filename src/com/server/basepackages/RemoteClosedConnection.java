@@ -4,7 +4,7 @@ import com.server.packageing.DataPackage;
 
 public class RemoteClosedConnection extends DataPackage{
 
-	public static boolean IS_DYNAMIC_LENGTH = true;
+	public static boolean IS_DYNAMIC_LENGTH = false;
 	public static short PACK_LENGTH = (short)0;
 	public static byte[] ID = new byte[] {0x0 , 0x0};
 	
