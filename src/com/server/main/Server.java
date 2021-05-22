@@ -16,6 +16,7 @@ import com.server.packageing.DataPackage;
 import com.server.packageing.DefaultPackageManager;
 import com.server.packageing.PackageManager;
 import com.server.packageing.PackageRegistrationManager;
+import com.server.packageing.UnknownPackageHandling;
 
 public class Server {
 
@@ -33,6 +34,7 @@ public class Server {
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private ClientConnectCallback clientConnectCallback= null;
+	private UnknownPackageHandling unknownPackageHandling = null;
 	
 	private int clientTimeOut = -1;
 	private int defaultErrorOut = 500;
@@ -83,6 +85,7 @@ public class Server {
 					if(s != null) {
 						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, UUID.randomUUID());
 						newConnection.setClientPackageReceiveCallback(callback);
+						newConnection.setUnknownPackageHandling(this.unknownPackageHandling);
 						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
@@ -211,6 +214,10 @@ public class Server {
 
 	public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
 		this.clientConnectCallback = clientConnectCallback;
+	}
+
+	public void setUnknownPackageHandling(UnknownPackageHandling unknownPackageHandling) {
+		this.unknownPackageHandling = unknownPackageHandling;
 	}
 	
 }

@@ -13,6 +13,7 @@ import com.logger.Level;
 import com.server.packageing.DataPackage;
 import com.server.packageing.PackageInfo;
 import com.server.packageing.PackageManager;
+import com.server.packageing.UnknownPackageHandling;
 
 
 enum State{
@@ -37,6 +38,7 @@ public class ClientConnection{
 	private InputStream reader;
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
+	private UnknownPackageHandling unknownPackageHandling = null;
 	
 	public ClientConnection(Socket socket, Server server, PackageManager packageManager, UUID uuid){
 		this(socket, server, packageManager, -1, uuid);
@@ -100,7 +102,8 @@ public class ClientConnection{
 					
 					if(info == null) {
 						Server.logger.log(Level.ERROR, "Unknown package recived by: " + socket.getInetAddress().toString());
-						Server.logger.log(Level.ERROR, "Unknown package id: " + data[0] + data[1]);
+						Server.logger.log(Level.ERROR, "Unknown package id: " + DataPackage.getIntFromByte(data));
+						if(this.unknownPackageHandling != null) unknownPackageHandling.handle(data, this);
 						disable();
 						return;
 					}
@@ -172,7 +175,7 @@ public class ClientConnection{
 	 * Disables the client connection and stops all the in and output streams and removes the connection form the manager.
 	 * */
 	public void disable() {
-		Server.logger.log(Level.INFO, "Disabling connection for: " + socket.getInetAddress().toString());
+		Server.logger.log(Level.INFO, "Disabling connection for: " + socket.getInetAddress().getHostAddress().toString());
 		this.state = State.Dead;
 		try {
 			if(socket != null) this.socket.close();
@@ -268,5 +271,9 @@ public class ClientConnection{
 			throw new IllegalAccessException("The name of a connection can not be changed when it has been set!");
 		
 		this.connectionName = connectionName;
+	}
+
+	public void setUnknownPackageHandling(UnknownPackageHandling unknownPackageHandling) {
+		this.unknownPackageHandling = unknownPackageHandling;
 	}
 }

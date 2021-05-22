@@ -60,7 +60,7 @@ public class DataPackage{
 		for(int i = IDLENGTH; i < l.length + IDLENGTH; ++i) {
 			out[i] = l[i-IDLENGTH];
 		}
-		for(int i = IDLENGTH+this.length, j = 0; i < out.length; ++i) {
+		for(int i = IDLENGTH + l.length, j = 0; i < out.length; ++i) {
 			out[i] = this.byteDataRaw[j++];
 		}
 		return out;
