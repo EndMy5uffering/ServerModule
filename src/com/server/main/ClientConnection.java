@@ -259,15 +259,15 @@ public class ClientConnection{
 	 * When giving a name to the connection the client automatically registers the name in the ClientManager.
 	 * 
 	 * @param connectionName The name of the connection. <b>The name has to be unique!</b>
-	 * @throws IllegalAccessException When the connection was already named.
+	 * @throws IllegalArgumentException When the connection was already named.
 	 * @throws NullPointerException When connectionName == null or connectionName == ""
 	 * 
 	 * */
-	public void setConnectionName(String connectionName) throws IllegalAccessException {
+	public void setConnectionName(String connectionName) {
 		if(connectionName == "" || connectionName == null)
 			throw new NullPointerException("A conneciton name can not be null or empty!");
-		if(server.getClientManager().getClientConnection(this.connectionName) != null)
-			throw new IllegalAccessException("The name of a connection can not be changed when it has been set!");
+		if(this.connectionName != "" || server.getClientManager().getClientConnection(this.connectionName) != null)
+			throw new IllegalArgumentException("The name of a connection can not be changed when it has been set!");
 		
 		this.connectionName = connectionName;
 	}

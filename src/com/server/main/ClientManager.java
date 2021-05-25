@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.logger.Level;
 import com.server.packageing.DataPackage;
 
-class ClientManager {
+public class ClientManager {
 
 	private Map<String, UUID> NamedConnection = new HashMap<>();
 	private Map<UUID, ClientConnection> connecitons = new HashMap<>();
@@ -36,7 +36,8 @@ class ClientManager {
 	 * 
 	 * @throws NullPointerException When id == null or name == null or name == ""
 	 * @throws IllegalArgumentException When a client has already been registered with the given name.
-	 * 
+	 * @throws IllegalArgumentException When there is no client with the given id.
+	 * @throws IllegalAccessException When the connection was already named.
 	 * @param id UUID of the connection. You can get the id from the connection with the getId() function.
 	 * @param name The name you want to give you connection for better access.
 	 * */
@@ -45,7 +46,10 @@ class ClientManager {
 			throw new NullPointerException("ID and Name can not be null!");
 		if(NamedConnection.get(name) != null)
 			throw new IllegalArgumentException("Connection with the given name already exists!");
+		if(this.connecitons.get(id) == null)
+			throw new IllegalArgumentException("No client connection for: " + id);
 		NamedConnection.put(name, id);
+		this.connecitons.get(id).setConnectionName(name);
 	}
 	
 	/**
