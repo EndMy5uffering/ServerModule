@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.logger.Level;
 import com.logger.Logger;
@@ -35,6 +34,7 @@ public class Server {
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private ClientConnectCallback clientConnectCallback= null;
 	private UnknownPackageCallback unknownPackageCallback = null;
+	private SessionIDGeneration sessionIDGeneration = () -> {return SessionID.getSessionIDAsUUID();};
 	
 	private int clientTimeOut = -1;
 	private int defaultErrorOut = 500;
@@ -83,7 +83,9 @@ public class Server {
 					Socket s = serverSocket.accept();
 					logger.log(Level.INFO, "Client connecting " + s.getInetAddress().getHostAddress());
 					if(s != null) {
-						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, UUID.randomUUID());
+						SessionID clientID = this.sessionIDGeneration.generate();
+						
+						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, clientID);
 						newConnection.setClientPackageReceiveCallback(callback);
 						newConnection.setUnknownPackageCallback(this.unknownPackageCallback);
 						this.clientManager.submit(newConnection);
@@ -225,6 +227,16 @@ public class Server {
 	 * */
 	public void setUnknownPackageCallback(UnknownPackageCallback unknownPackageCallback) {
 		this.unknownPackageCallback = unknownPackageCallback;
+	}
+
+	/**
+	 * Sets the method for generating Session ids for the client connection.
+	 * @throws NullPointerException When sessionIDGeneration is null.
+	 * */
+	public void setSessionIDGeneration(SessionIDGeneration sessionIDGeneration) {
+		if(sessionIDGeneration == null)
+			throw new NullPointerException("SessionID generation can not be null!");
+		this.sessionIDGeneration = sessionIDGeneration;
 	}
 	
 }

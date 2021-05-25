@@ -2,15 +2,14 @@ package com.server.main;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import com.logger.Level;
 import com.server.packageing.DataPackage;
 
 public class ClientManager {
 
-	private Map<String, UUID> NamedConnection = new HashMap<>();
-	private Map<UUID, ClientConnection> connecitons = new HashMap<>();
+	private Map<String, SessionID> NamedConnection = new HashMap<>();
+	private Map<SessionID, ClientConnection> connecitons = new HashMap<>();
 	private Server server;
 	
 	
@@ -38,10 +37,10 @@ public class ClientManager {
 	 * @throws IllegalArgumentException When a client has already been registered with the given name.
 	 * @throws IllegalArgumentException When there is no client with the given id.
 	 * @throws IllegalAccessException When the connection was already named.
-	 * @param id UUID of the connection. You can get the id from the connection with the getId() function.
+	 * @param id SessionID of the connection. You can get the id from the connection with the getId() function.
 	 * @param name The name you want to give you connection for better access.
 	 * */
-	public void setClientName(UUID id, String name) {
+	public void setClientName(SessionID id, String name) {
 		if(id == null || name == null || name == "")
 			throw new NullPointerException("ID and Name can not be null!");
 		if(NamedConnection.get(name) != null)
@@ -56,10 +55,20 @@ public class ClientManager {
 	 * Returns the client connection belonging to the given id.<br>
 	 * If not connection is registered under the given id the function will return <b>null</b>.
 	 * 
-	 * @param id The UUID of the connection.
+	 * @param sessionID The SessionID of the connection.
 	 * */
-	public ClientConnection getClientConnection(UUID id) {
-		return this.connecitons.get(id);
+	public ClientConnection getClientConnection(SessionID sessionID) {
+		return this.connecitons.get(sessionID);
+	}
+	
+	/**
+	 * Returns the client connection belonging to the given id.<br>
+	 * If not connection is registered under the given id the function will return <b>null</b>.
+	 * 
+	 * @param sessionID The SessionID as string of the connection.
+	 * */
+	public ClientConnection getClientConnection(String sessionID) {
+		return this.getClientConnection(new SessionID(sessionID));
 	}
 	
 	/**
@@ -68,8 +77,8 @@ public class ClientManager {
 	 * 
 	 * @param name The name the connection is registered under.
 	 * */
-	public ClientConnection getClientConnection(String name) {
-		UUID id = NamedConnection.get(name);
+	public ClientConnection getClientConnectionByName(String name) {
+		SessionID id = NamedConnection.get(name);
 		if(id == null) return null;
 		return this.connecitons.get(id);
 	}

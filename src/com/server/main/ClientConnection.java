@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.logger.Level;
 import com.server.packageing.DataPackage;
@@ -23,7 +22,7 @@ enum State{
 
 public class ClientConnection{
 
-	private final UUID id;
+	private final SessionID id;
 	private String connectionName = "";
 	
 	private Socket socket;
@@ -40,11 +39,11 @@ public class ClientConnection{
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private UnknownPackageCallback unknownPackageCallback = null;
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager, UUID uuid){
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, SessionID uuid){
 		this(socket, server, packageManager, -1, uuid);
 	}
 	
-	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout, UUID uuid) {
+	public ClientConnection(Socket socket, Server server, PackageManager packageManager, int timeout, SessionID uuid) {
 		if(socket == null) {
 			this.state = State.Dead;
 		}
@@ -244,7 +243,7 @@ public class ClientConnection{
 		return server;
 	}
 
-	public UUID getId() {
+	public SessionID getId() {
 		return id;
 	}
 
