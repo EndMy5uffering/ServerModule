@@ -83,7 +83,8 @@ class ClientManager {
 	
 	/**
 	 * Removes client form manager list.<br>
-	 * When removed a client can no longer be managed by the server and will not receive new messages from the server.
+	 * When removed a client can no longer be managed by the server and will not receive new messages from the server.<br>
+	 * When the client is disabled it will call this function automatically to remove itself from the manager.
 	 * 
 	 * @param client
 	 * */

@@ -53,14 +53,16 @@ public class DataPackage{
 			l = DataPackage.getByteArrayFromInt(this.byteDataRaw.length, this.length);
 		}
 		
-		byte[] out = new byte[IDLENGTH + l.length + this.byteDataRaw.length];
+		//TODO: look into another way of doing this please!!!!!!!
+		byte[] out = new byte[IDLENGTH + l.length + (dynamicLength ? this.byteDataRaw.length : this.length)];
+		//TODO: And for havens sake find a way to combine these loops...
 		for(int i = 0; i < IDLENGTH; ++i) {
 			out[i] = id[i];
 		}
 		for(int i = IDLENGTH; i < l.length + IDLENGTH; ++i) {
 			out[i] = l[i-IDLENGTH];
 		}
-		for(int i = IDLENGTH + l.length, j = 0; i < out.length; ++i) {
+		for(int i = IDLENGTH + l.length, j = 0; i < out.length && j < this.byteDataRaw.length; ++i) {
 			out[i] = this.byteDataRaw[j++];
 		}
 		return out;

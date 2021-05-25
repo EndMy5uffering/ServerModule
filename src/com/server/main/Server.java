@@ -16,7 +16,7 @@ import com.server.packageing.DataPackage;
 import com.server.packageing.DefaultPackageManager;
 import com.server.packageing.PackageManager;
 import com.server.packageing.PackageRegistrationManager;
-import com.server.packageing.UnknownPackageHandling;
+import com.server.packageing.UnknownPackageCallback;
 
 public class Server {
 
@@ -34,7 +34,7 @@ public class Server {
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private ClientConnectCallback clientConnectCallback= null;
-	private UnknownPackageHandling unknownPackageHandling = null;
+	private UnknownPackageCallback unknownPackageCallback = null;
 	
 	private int clientTimeOut = -1;
 	private int defaultErrorOut = 500;
@@ -85,7 +85,7 @@ public class Server {
 					if(s != null) {
 						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, UUID.randomUUID());
 						newConnection.setClientPackageReceiveCallback(callback);
-						newConnection.setUnknownPackageHandling(this.unknownPackageHandling);
+						newConnection.setUnknownPackageCallback(this.unknownPackageCallback);
 						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
@@ -216,8 +216,15 @@ public class Server {
 		this.clientConnectCallback = clientConnectCallback;
 	}
 
-	public void setUnknownPackageHandling(UnknownPackageHandling unknownPackageHandling) {
-		this.unknownPackageHandling = unknownPackageHandling;
+	/**
+	 * Sets a callback for unknown packages.<br>
+	 * When a unknown package was read by the connection the given function will be called.<br>
+	 * After the function execution the client connection will be closed to prevent errors caused by unknown data in the input stream.
+	 * 
+	 * @param unknownPackageCallback A handler function that is called for unknown packages.
+	 * */
+	public void setUnknownPackageCallback(UnknownPackageCallback unknownPackageCallback) {
+		this.unknownPackageCallback = unknownPackageCallback;
 	}
 	
 }
