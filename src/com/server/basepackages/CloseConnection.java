@@ -13,5 +13,4 @@ public class CloseConnection extends DataPackage{
 	    this.setId(ID);
 	}
 	
-	
 }

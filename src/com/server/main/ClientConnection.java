@@ -23,6 +23,7 @@ enum State{
 public class ClientConnection{
 
 	private final SessionID id;
+	private SessionID customID;
 	private String connectionName = "";
 	
 	private Socket socket;
@@ -117,6 +118,7 @@ public class ClientConnection{
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
 						int length = DataPackage.getIntFromByte(rawData);
+						this.server.getLogger().log(Level.DEBUG, "Package Length: " + length);
 						if(length >= 0 && length < Server.getMaxPackageSize()) {
 							rawData = new byte[length];
 							reader.read(rawData);
@@ -280,5 +282,13 @@ public class ClientConnection{
 	 * */
 	public void setUnknownPackageCallback(UnknownPackageCallback unknownPackageCallback) {
 		this.unknownPackageCallback = unknownPackageCallback;
+	}
+
+	public SessionID getCustomID() {
+		return customID;
+	}
+
+	public void setCustomID(SessionID customID) {
+		this.customID = customID;
 	}
 }

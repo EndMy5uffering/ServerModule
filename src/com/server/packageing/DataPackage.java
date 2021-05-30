@@ -140,6 +140,16 @@ public class DataPackage{
 		return -1;
 	}
 	
+	public byte[] getArrayFromTo(byte[] a, int from, int to) {
+		byte[] out = new byte[to - from];
+		
+		for(int i = from; i < to; i++) {
+			out[i-from] = a[i];
+		}
+		
+		return a;
+	}
+	
 	@Override
 	public String toString() {
 		String out = "";
