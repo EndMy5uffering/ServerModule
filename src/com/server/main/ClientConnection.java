@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class ClientConnection{
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private UnknownPackageCallback unknownPackageCallback = null;
+	private ClientTimeOutCallback clientTimeOutCallback = null;
 	
 	public ClientConnection(Socket socket, Server server, PackageManager packageManager, SessionID uuid){
 		this(socket, server, packageManager, -1, uuid);
@@ -137,8 +139,22 @@ public class ClientConnection{
 					if(dataOut != null && info.getCallback() != null) info.getCallback().call(dataOut, this);
 					if(this.state != State.Active) return;
 				}
-			} catch (IOException e) {
-			}
+			}catch(SocketTimeoutException timeout) {
+				if(this.clientTimeOutCallback != null) {
+					try {
+						clientTimeOutCallback.call(this);
+					} catch (Exception e) {
+						Server.logger.log(Level.ERROR, "The timeout callback caused an error while executing!");
+						Server.logger.log(Level.ERROR, "The connection will be closed!");
+					}
+				}
+				this.disable();
+				Server.logger.log(Level.WARNING, "Connection timed out for: " + this.socket.getInetAddress().getHostAddress());
+			}catch (IOException e) {
+				if(this.state != State.Dead) {
+					Server.logger.log(Level.ERROR, e.getMessage());
+				}	
+			} 
 			disable();
 		});
 		
@@ -156,6 +172,7 @@ public class ClientConnection{
 			try {
 				out.write(data.pack());
 				out.flush();
+				Server.logger.log(Level.DEBUG, "SEND: " + data.toString());
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());
 				disable();
@@ -175,7 +192,7 @@ public class ClientConnection{
 	 * Disables the client connection and stops all the in and output streams and removes the connection form the manager.
 	 * */
 	public void disable() {
-		Server.logger.log(Level.INFO, "Disabling connection for: " + socket.getInetAddress().getHostAddress().toString());
+		Server.logger.log(Level.INFO, "Disabling connection for: " + socket.getInetAddress().getHostAddress());
 		this.state = State.Dead;
 		try {
 			if(socket != null) this.socket.close();
@@ -227,6 +244,16 @@ public class ClientConnection{
 		if(packageManager == null)
 			throw new NullPointerException("Package Manager can not be null!");
 		this.packageManager = packageManager;
+	}
+	
+	/**
+	 * Sets the timeout callback function that will be called when a connection did not receive any packages for a set time (timeout).<br>
+	 * The function will be called before the connection is closed an disposed of.<br>
+	 * Right after execution of the callback the connection will be closed and disposed of.
+	 * @param timeout The timeout function that will be executed when a connection timed out
+	 * */
+	public void setClientTimeOutCallback(ClientTimeOutCallback timeout) {
+		this.clientTimeOutCallback = timeout;
 	}
 
 	public State getState() {

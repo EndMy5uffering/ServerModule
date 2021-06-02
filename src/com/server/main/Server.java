@@ -32,7 +32,7 @@ public class Server {
 	private Thread serverThread;
 	
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
-	private ClientConnectCallback clientConnectCallback= null;
+	private ClientConnectCallback clientConnectCallback = null;
 	private UnknownPackageCallback unknownPackageCallback = null;
 	private SessionIDGeneration sessionIDGeneration = () -> {return SessionID.getSessionIDAsUUID();};
 	
@@ -143,7 +143,7 @@ public class Server {
 	 * Timeout value for the client connection that is set by the server when a connection is made.<br>
 	 * <br><u>No timeout is set for values <b>smaller</b> or <b>equal</b> to <b>0</b></u>
 	 * 
-	 * @param timeOut
+	 * @param timeOut the specified timeout, in <b>milliseconds.</b>
 	 * */
 	public void setDefualtClientTimeOut(int timeOut) {
 		this.clientTimeOut = timeOut;
