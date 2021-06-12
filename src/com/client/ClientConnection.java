@@ -1,4 +1,4 @@
-package com.server.main;
+package com.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.logger.Level;
+import com.server.main.Server;
+import com.server.main.SessionID;
 import com.server.packageing.DataPackage;
 import com.server.packageing.PackageInfo;
 import com.server.packageing.PackageManager;
@@ -41,6 +43,7 @@ public class ClientConnection{
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private UnknownPackageCallback unknownPackageCallback = null;
 	private ClientTimeOutCallback clientTimeOutCallback = null;
+	private ClientDisconnectCallback clientDisconnectCallback = null;
 	
 	public ClientConnection(Socket socket, Server server, PackageManager packageManager, SessionID uuid){
 		this(socket, server, packageManager, -1, uuid);
@@ -96,7 +99,7 @@ public class ClientConnection{
 					
 					reader.read(data);
 					if(packageManager == null) {
-						server.getLogger().log(Level.ERROR, "Package manager can not be null!");
+						Server.logger.log(Level.ERROR, "Package manager can not be null!");
 						disable();
 						return;
 					}
@@ -120,7 +123,7 @@ public class ClientConnection{
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
 						int length = DataPackage.getIntFromByte(rawData);
-						this.server.getLogger().log(Level.DEBUG, "Package Length: " + length);
+						Server.logger.log(Level.DEBUG, "Package Length: " + length);
 						if(length >= 0 && length < Server.getMaxPackageSize()) {
 							rawData = new byte[length];
 							reader.read(rawData);
@@ -201,7 +204,14 @@ public class ClientConnection{
 		} catch (IOException e) {
 			Server.logger.log(Level.ERROR, e, e.getClass());
 		}
-		this.server.getClientManager().removeClient(this);
+		if(this.server != null) {
+			this.server.getClientManager().removeClient(this);
+		}else {
+			Server.logger.log(Level.WARNING, "Could not remove client from any clien manager: Server was null");
+		}
+		
+		if(this.clientDisconnectCallback != null) clientDisconnectCallback.call(this);
+		
 	}
 
 	/**
@@ -311,11 +321,28 @@ public class ClientConnection{
 		this.unknownPackageCallback = unknownPackageCallback;
 	}
 
+	/**
+	 * The custom session id is a session id that can be added to help manage the connection.
+	 * */
 	public SessionID getCustomID() {
 		return customID;
 	}
 
+	/**
+	 * The custom session id is a session id that can be added to help manage the connection.
+	 * */
 	public void setCustomID(SessionID customID) {
 		this.customID = customID;
+	}
+
+	/**
+	 * Sets a callback function that is invoked when the client is disabled and stopped.<b>
+	 * This can happen when an error occurs while receiving a package or due to a time out.<b>
+	 * In the best case the client should disconnect without any errors.
+	 * 
+	 * @param clientDisconnectCallback The callback that is invoked on a client disconnect.
+	 * */
+	public void setClientDisconnectCallback(ClientDisconnectCallback clientDisconnectCallback) {
+		this.clientDisconnectCallback = clientDisconnectCallback;
 	}
 }

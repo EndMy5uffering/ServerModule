@@ -1,20 +1,21 @@
-package com.server.main;
+package com.client;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.logger.Level;
+import com.server.main.Server;
+import com.server.main.SessionID;
 import com.server.packageing.DataPackage;
 
 public class ClientManager {
 
 	private Map<String, SessionID> NamedConnection = new HashMap<>();
 	private Map<SessionID, ClientConnection> connecitons = new HashMap<>();
-	private Server server;
 	
 	
-	public ClientManager(Server server) {
-		this.server = server;
+	public ClientManager() {
+		
 	}
 	
 	/**
@@ -104,7 +105,7 @@ public class ClientManager {
 	public synchronized void removeClient(ClientConnection client) {
 		connecitons.remove(client.getId());
 		if(client.getConnectionName() != "" && client.getConnectionName() != null) NamedConnection.remove(client.getConnectionName());
-		server.getLogger().log(Level.INFO, "Client connection discarded for: " + client.getSocket().getInetAddress().getHostAddress());
+		Server.getLogger().log(Level.INFO, "Client connection discarded for: " + client.getSocket().getInetAddress().getHostAddress());
 	}
 	
 	

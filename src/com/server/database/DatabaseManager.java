@@ -201,6 +201,10 @@ public class DatabaseManager {
 		return out;
 	}
 	
+//	public synchronized void getDataAsync(String querry, AsyncTask worker) {
+//		
+//	}
+	
 	public static DatabaseInfo getDatabaseInfo(String url, String name, String pass) {
 		return new DatabaseInfo(url, name, pass);
 	}

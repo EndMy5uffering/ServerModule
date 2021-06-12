@@ -1,6 +1,7 @@
 package com.server.packageing;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 
 public class DataPackage{
@@ -138,6 +139,51 @@ public class DataPackage{
 			return buffer.get();
 		}
 		return -1;
+	}
+	
+	/**
+	 * Concats the given byte arrays to one large array.
+	 * */
+	public static byte[] concat(byte[] first, byte[] second) {
+		byte[] result = Arrays.copyOf(first, first.length + second.length);
+		  System.arraycopy(second, 0, result, first.length, second.length);
+		  return result;
+	}
+	
+	/**
+	 * Concats the given byte arrays to one large array.
+	 * */
+	@SafeVarargs
+	public static byte[] concatAll(byte[] first, byte[]... rest) {
+		  int totalLength = first.length;
+		  for (byte[] array : rest) {
+		    totalLength += array.length;
+		  }
+		  byte[] result = Arrays.copyOf(first, totalLength);
+		  int offset = first.length;
+		  for (byte[] array : rest) {
+		    System.arraycopy(array, 0, result, offset, array.length);
+		    offset += array.length;
+		  }
+		  return result;
+	}
+	
+	/**
+	 * This function will pad the given array to the new length.<br>
+	 * The given byte array will be written from offset to array.length in the output array.<br>
+	 * 
+	 * @param array The input array that will be padded
+	 * @param length The length of the output array.
+	 * @param offset Number of bytes the input array will be offset.
+	 * */
+	public byte[] pad(byte[] array, int length, int offset) {
+		byte[] out = new byte[length];
+		
+		for(int i = 0; i < array.length; i++) {
+			out[i+offset] = array[i];
+		}
+		
+		return out;
 	}
 	
 	public byte[] getArrayFromTo(byte[] a, int from, int to) {

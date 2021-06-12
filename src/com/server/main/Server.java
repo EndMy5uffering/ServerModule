@@ -6,11 +6,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.client.ClientConnectCallback;
+import com.client.ClientConnection;
+import com.client.ClientDisconnectCallback;
+import com.client.ClientManager;
+import com.client.ClientPackageReceiveCallback;
 import com.logger.Level;
 import com.logger.Logger;
 import com.logger.PrintMode;
 import com.logger.PrintingType;
-import com.server.packageing.ClientConnectCallback;
 import com.server.packageing.DataPackage;
 import com.server.packageing.DefaultPackageManager;
 import com.server.packageing.PackageManager;
@@ -34,6 +38,7 @@ public class Server {
 	private List<ClientPackageReceiveCallback> callback = new ArrayList<ClientPackageReceiveCallback>();
 	private ClientConnectCallback clientConnectCallback = null;
 	private UnknownPackageCallback unknownPackageCallback = null;
+	private ClientDisconnectCallback defaultClientDisconnectCallback = null;
 	private SessionIDGeneration sessionIDGeneration = () -> {return SessionID.getSessionIDAsUUID();};
 	
 	private int clientTimeOut = -1;
@@ -49,7 +54,7 @@ public class Server {
 	
 	public Server(int port, PackageRegistrationManager packageRegistrationManager) {
 		this.port = port;
-		this.clientManager = new ClientManager(this);
+		this.clientManager = new ClientManager();
 		if(packageRegistrationManager != null) {
 			this.packageRegistrationManager = packageRegistrationManager;
 		}else {
@@ -88,6 +93,7 @@ public class Server {
 						newConnection = new ClientConnection(s, this, this.defaultPackageManager, this.clientTimeOut, clientID);
 						newConnection.setClientPackageReceiveCallback(callback);
 						newConnection.setUnknownPackageCallback(this.unknownPackageCallback);
+						newConnection.setClientDisconnectCallback(this.defaultClientDisconnectCallback);
 						this.clientManager.submit(newConnection);
 					}
 					ErrorOut = defaultErrorOut;
@@ -153,7 +159,7 @@ public class Server {
 	 * Gets the logger object.
 	 * The logger is a subsystem that logs everything to the console or a log file.
 	 * */
-	public Logger getLogger() {
+	public static Logger getLogger() {
 		return logger;
 	}
 
@@ -237,6 +243,17 @@ public class Server {
 		if(sessionIDGeneration == null)
 			throw new NullPointerException("SessionID generation can not be null!");
 		this.sessionIDGeneration = sessionIDGeneration;
+	}
+
+	/**
+	 * Sets a default callback function that is invoked when a client is disabled and stopped.<b>
+	 * This can happen when an error occurs while receiving a package or due to a time out.<b>
+	 * In the best case the client should disconnect without any errors.
+	 * 
+	 * @param defaultClientDisconnectCallback The callback that is invoked on a client disconnect.
+	 * */
+	public void setDefaultClientDisconnectCallback(ClientDisconnectCallback defaultClientDisconnectCallback) {
+		this.defaultClientDisconnectCallback = defaultClientDisconnectCallback;
 	}
 	
 }

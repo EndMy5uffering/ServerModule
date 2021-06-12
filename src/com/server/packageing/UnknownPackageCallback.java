@@ -1,7 +1,8 @@
 package com.server.packageing;
 
-import com.server.main.ClientConnection;
+import com.client.ClientConnection;
 
+@FunctionalInterface
 public interface UnknownPackageCallback {
 	
 	/**

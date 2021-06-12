@@ -1,7 +1,6 @@
-package com.server.packageing;
+package com.client;
 
-import com.server.main.ClientConnection;
-
+@FunctionalInterface
 public interface ClientConnectCallback {
 
 	public void call(ClientConnection con);

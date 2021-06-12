@@ -1,7 +1,8 @@
-package com.server.main;
+package com.client;
 
 import com.server.packageing.DataPackage;
 
+@FunctionalInterface
 public interface ClientPackageReceiveCallback {
 
 	/**

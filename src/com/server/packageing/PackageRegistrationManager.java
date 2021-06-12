@@ -104,6 +104,43 @@ public class PackageRegistrationManager {
 	}
 	
 	/**
+	 * Registers a package to the DefaultPackageManager.class.<br>
+	 * <br>
+	 * This function uses reflection to access the fields <b>byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH</b>.
+	 * <br><br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * @throws NullPointerException When <b>type == null</b> or <b>pack == null</b> or <b>construct == null</b>
+	 * @throws NullPointerException When fields <b>ID, PACK_LENGTH, IS_DYNAMIC_LENGTH</b> are not declared.
+	 * 
+	 * @param pack The .class type of the package that will be register under the give type of package manager.
+	 * @param construct a constructor function for the package manager.
+	 * @param packageCallBack Package callback function. Can be null.
+	 * */
+	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+		register(DefaultPackageManager.class, pack, construct, packageCallBack);
+	}
+	
+	/**
+	 * Registers a package to the DefaultPackageManager.class.<br>
+	 * <br>
+	 * This function uses reflection to access the fields <b>byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH</b>.
+	 * <br><br>
+	 * The constructor can be written as a lambda function like:<br>
+	 * (length, dynamicLength, rawData) -> {return new DefaultPackageManager(length, dynamicLength, rawData);}<br>
+	 * <br>
+	 * @throws NullPointerException When <b>type == null</b> or <b>pack == null</b> or <b>construct == null</b>
+	 * @throws NullPointerException When fields <b>ID, PACK_LENGTH, IS_DYNAMIC_LENGTH</b> are not declared.
+	 * 
+	 * @param pack The .class type of the package that will be register under the give type of package manager.
+	 * @param construct a constructor function for the package manager.
+	 * */
+	public void register(Class<? extends DataPackage> pack, PackageConstructor construct) {
+		register(DefaultPackageManager.class, pack, construct, null);
+	}
+	
+	/**
 	 * Registers a package for a given PackageManager.<br>
 	 * <br>
 	 * The constructor can be written as a lambda function like:<br>

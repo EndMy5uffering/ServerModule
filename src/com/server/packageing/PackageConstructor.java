@@ -1,5 +1,6 @@
 package com.server.packageing;
 
+@FunctionalInterface
 public interface PackageConstructor {
 
 	/**
