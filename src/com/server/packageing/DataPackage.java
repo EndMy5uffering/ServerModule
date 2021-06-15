@@ -101,22 +101,12 @@ public class DataPackage{
 	}
 	
 	/**
-	 * Converts String to byte array.
-	 * */
-	public byte[] getAsByte(String s) {
-		byte[] out = new byte[s.length()];
-		for(int i = 0; i < s.length(); ++i) {
-			out[i] = (byte)s.charAt(i);
-		}
-		return out;
-	}
-	
-	/**
 	 * Converts an integer to a byte array of length <b>arrayLength</b>
 	 * 
 	 * @param i Integer to be converted to a byte array
 	 * @param arrayLength length of the return array
 	 * */
+	@Deprecated
 	public static byte[] getByteArrayFromInt(int i, int arrayLength) {
 		ByteBuffer buffer = ByteBuffer.allocate(arrayLength);
 		buffer.putInt(i);
@@ -128,6 +118,7 @@ public class DataPackage{
 	 * If the byte array is larger then 4 byte information might be lost.<br>
 	 * If the byte array is smaller then 1 or null the function will return <b>-1</b>
 	 * */
+	@Deprecated
 	public static int getIntFromByte(byte[] b) {
 		ByteBuffer buffer = ByteBuffer.wrap(b);
 		if(b == null) return -1;
@@ -193,7 +184,36 @@ public class DataPackage{
 			out[i-from] = a[i];
 		}
 		
-		return a;
+		return out;
+	}
+	
+	public static byte[] toByte(float f) {
+		ByteBuffer buffer = ByteBuffer.allocate(Float.BYTES);
+		buffer.putFloat(f);
+		return buffer.array();
+	}
+	
+	public static byte[] toByte(double d) {
+		ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES);
+		buffer.putDouble(d);
+		return buffer.array();
+	}
+	
+	public static byte[] toByte(String s) {
+		return s.getBytes();
+	}
+	
+	public static float toFloat(byte[] d) {
+		return ByteBuffer.wrap(d).asFloatBuffer().get();
+	}
+	
+	public static double toDouble(byte[] d) {
+		ByteBuffer buffer = ByteBuffer.wrap(d);
+		return buffer.asDoubleBuffer().get();
+	}
+	
+	public static String toString(byte[] d) {
+		return new String(d);
 	}
 	
 	@Override
