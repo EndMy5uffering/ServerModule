@@ -1,8 +1,8 @@
 package com.server.asyncworker;
 
 @FunctionalInterface
-public interface AsyncTask {
+public interface Tickable {
 
-	public void call();
+	public void tick();
 	
 }

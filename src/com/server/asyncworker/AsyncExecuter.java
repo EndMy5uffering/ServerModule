@@ -1,6 +1,5 @@
 package com.server.asyncworker;
 
-import java.util.Queue;
 import java.util.concurrent.SynchronousQueue;
 
 import com.logger.Level;
@@ -10,7 +9,7 @@ public class AsyncExecuter {
 
 	private Thread[] worker;
 		
-	private Queue<AsyncTask> tasks = new SynchronousQueue<>();
+	private SynchronousQueue<AsyncTask> tasks = new SynchronousQueue<>();
 	
 	public boolean running = true;
 	
@@ -29,17 +28,18 @@ public class AsyncExecuter {
 						if(task != null)
 							task.call();
 					} catch (Exception e) {
-						Server.logger.log(Level.ERROR, "The async execution of a task encoutnered a problem");
-						Server.logger.log(Level.ERROR, e, e.getClass());
+						Server.logger.log(Level.ERROR, "The async execution of a task encoutnered a problem!");
+						Server.logger.log(Level.ERROR, e);
 					}
 				}
 				
 			});
+			this.worker[i].start();
 		}
 		Server.logger.log(Level.INFO, "Starting backgound worker: " + this.worker.length);
 	}
 	
-	public void addTask(AsyncTask t) {
+	public synchronized void addTask(AsyncTask t) {
 		this.tasks.add(t);
 	}
 	
