@@ -8,15 +8,20 @@ public class DataPackage{
 
 	public final static short IDLENGTH = 2;
 	
-	private byte[] id = new byte[] {0x0, 0x0};
+	private byte[] id;
 	private byte[] byteDataRaw;
 	private short length;
 	private boolean dynamicLength = false;
 	
 	public DataPackage(short length, boolean dynamicLength, byte[] byteDataRaw) {
+		this(new byte[] {0x0, 0x0}, length, dynamicLength, byteDataRaw);
+	}
+	
+	public DataPackage(byte[] id, short length, boolean dynamicLength, byte[] byteDataRaw) {
 		this.byteDataRaw = byteDataRaw;
 		this.length = length;
 		this.dynamicLength = dynamicLength;
+		this.id = id;
 	}
 	
 	/**
@@ -177,7 +182,16 @@ public class DataPackage{
 		return out;
 	}
 	
-	public byte[] getArrayFromTo(byte[] a, int from, int to) {
+	/**
+	 * Returns a byte array with the bytes from <b>a</b> in the range <b>[from, to[</b><br>
+     * The range goes from <b>from</b> (incluseive) to <b>to</b> (exclusive)<br>
+     * <br>
+     * Example:<br>
+     * a = [0, 1, 2, 3, 4, 5, 6, 7, 8 ,9]<br>
+     * from = 3 | to = 8<br>
+     * output: [3, 4, 5, 6, 7]
+	 * */
+	public static byte[] getArrayFromTo(byte[] a, int from, int to) {
 		byte[] out = new byte[to - from];
 		
 		for(int i = from; i < to; i++) {
