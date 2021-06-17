@@ -3,6 +3,9 @@ package com.server.packageing;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.logger.Level;
+import com.server.main.Server;
+
 
 public class DataPackage{
 
@@ -58,20 +61,7 @@ public class DataPackage{
 		if(dynamicLength) {
 			l = DataPackage.getByteArrayFromInt(this.byteDataRaw.length, this.length);
 		}
-		
-		//TODO: look into another way of doing this please!!!!!!!
-		byte[] out = new byte[IDLENGTH + l.length + (dynamicLength ? this.byteDataRaw.length : this.length)];
-		//TODO: And for havens sake find a way to combine these loops...
-		for(int i = 0; i < IDLENGTH; ++i) {
-			out[i] = id[i];
-		}
-		for(int i = IDLENGTH; i < l.length + IDLENGTH; ++i) {
-			out[i] = l[i-IDLENGTH];
-		}
-		for(int i = IDLENGTH + l.length, j = 0; i < out.length && j < this.byteDataRaw.length; ++i) {
-			out[i] = this.byteDataRaw[j++];
-		}
-		return out;
+		return concatAll(this.id, l, this.byteDataRaw);
 	}
 	
 	/**
@@ -265,6 +255,14 @@ public class DataPackage{
 
 	public void setByteDataRaw(byte[] byteDataRaw) {
 		this.byteDataRaw = byteDataRaw;
+	}
+	
+	public static void printByteArray(byte[] data) {
+		String out = "Byte("+data.length+"): ";
+		for(int i = 0; i < data.length; i++) {
+			out += data[i]+" ";
+		}
+		Server.getLogger().log(Level.INFO, out);
 	}
 
 	
