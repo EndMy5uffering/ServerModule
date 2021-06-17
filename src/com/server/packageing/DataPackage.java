@@ -77,7 +77,7 @@ public class DataPackage{
 	/**
 	 * Cuts of all trailing 0 bytes.
 	 * */
-	public byte[] shorten(byte[] data) {
+	public static byte[] shorten(byte[] data) {
 		int to = 0;
 		for(int i = data.length-1; i >= 0; --i) {
 			if(data[i] > 0) {
@@ -97,12 +97,12 @@ public class DataPackage{
 	/**
 	 * Removes all bytes equal to <b>b</b> and cuts of all tailing 0 bytes.
 	 */
-	public byte[] strip(byte[] data, byte b) {
+	public static byte[] strip(byte[] data, byte b) {
 		byte[] out = new byte[data.length];
 		for(int i = 0, j = 0; i < data.length; i++) {
 			if(data[i] != b) out[j++] = data[i];
 		}
-		return shorten(out);
+		return DataPackage.shorten(out);
 	}
 	
 	/**
@@ -172,7 +172,7 @@ public class DataPackage{
 	 * @param length The length of the output array.
 	 * @param offset Number of bytes the input array will be offset.
 	 * */
-	public byte[] pad(byte[] array, int length, int offset) {
+	public static byte[] pad(byte[] array, int length, int offset) {
 		byte[] out = new byte[length];
 		
 		for(int i = 0; i < array.length; i++) {
