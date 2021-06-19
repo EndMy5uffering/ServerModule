@@ -3,7 +3,7 @@ package com.server.packageing;
 import com.client.ClientConnection;
 
 @FunctionalInterface
-public interface PackageCallBack {
+public interface PackageCallback {
 
 	/**
 	 * Callback function for a specific package.<br>

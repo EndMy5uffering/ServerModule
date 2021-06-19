@@ -107,7 +107,7 @@ public class ClientConnection{
 					
 					if(info == null) {
 						Server.logger.log(Level.ERROR, "Unknown package recived by: " + socket.getInetAddress().toString());
-						Server.logger.log(Level.ERROR, "Unknown package id: " + DataPackage.getIntFromByte(data));
+						Server.logger.log(Level.ERROR, "Unknown package id: " + DataPackage.getFromByte(data));
 						if(this.unknownPackageCallback != null) unknownPackageCallback.handle(data, this);
 						disable();
 						return;
@@ -122,13 +122,13 @@ public class ClientConnection{
 						
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
-						int length = DataPackage.getIntFromByte(rawData);
+						int length = (int) DataPackage.getFromByte(rawData);
 						if(length >= 0 && length < Server.getMaxPackageSize()) {
 							rawData = new byte[length];
 							reader.read(rawData);
 						}else if(length > Server.getMaxPackageSize() || length < 0) {
 							Server.logger.log(Level.ERROR, "Size missmatch!");
-							Server.logger.log(Level.ERROR, "PackageID: \t" + DataPackage.getIntFromByte(info.getId()));
+							Server.logger.log(Level.ERROR, "PackageID: \t" + DataPackage.getFromByte(info.getId()));
 							Server.logger.log(Level.ERROR, "Length: \t" + length);
 							break;
 						}
@@ -174,6 +174,7 @@ public class ClientConnection{
 			try {
 				out.write(data.pack());
 				out.flush();
+				Server.getLogger().log(Level.DEBUG, "SEND: " + data.toString());
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());
 				disable();

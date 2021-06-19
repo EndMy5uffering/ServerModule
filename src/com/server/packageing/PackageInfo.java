@@ -5,9 +5,9 @@ public class PackageInfo{
 	private short length;
 	private boolean dynamicLength;
 	private PackageConstructor construct;
-	private PackageCallBack callback;
+	private PackageCallback callback;
 	
-	public PackageInfo(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public PackageInfo(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallback packageCallBack) {
 		this.id = id;
 		this.length = length;
 		this.dynamicLength = dynamicLength;
@@ -31,11 +31,11 @@ public class PackageInfo{
 		return construct;
 	}
 
-	public PackageCallBack getCallback() {
+	public PackageCallback getCallback() {
 		return callback;
 	}
 
-	public void setCallback(PackageCallBack callback) {
+	public void setCallback(PackageCallback callback) {
 		this.callback = callback;
 	}
 }

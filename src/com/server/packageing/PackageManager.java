@@ -48,7 +48,7 @@ public abstract class PackageManager {
 	 * @param construct a constructor function for the package manager.
 	 * @param packageCallBack The callback function for the package
 	 * */
-	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallback packageCallBack) {
 		
 		Field[] fields = pack.getDeclaredFields();
 		byte[] id = null;
@@ -120,7 +120,7 @@ public abstract class PackageManager {
 	 * @param construct a wrapper function for a package constructor.
 	 * @param packageCallBack a callback function executed by the package when received.
 	 * */
-	public void register(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public void register(byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallback packageCallBack) {
 		register(new PackageInfo(id, length, dynamicLength, construct, packageCallBack));
 	}
 	
@@ -145,9 +145,9 @@ public abstract class PackageManager {
 		if(info.getConstruct() == null) 
 			throw new NullPointerException("Package constructor can not be null!");
 		if(getPackageInfo(info.getId()) != null) 
-			throw new IllegalArgumentException("Cannot register package with id: (" + DataPackage.getIntFromByte(info.getId()) + ")! A package is already registered under that id! ");
+			throw new IllegalArgumentException("Cannot register package with id: (" + DataPackage.getFromByte(info.getId()) + ")! A package is already registered under that id! ");
 		
-		PACKAGELOOKUP.put(DataPackage.getIntFromByte(info.getId()), info);
+		PACKAGELOOKUP.put((int)DataPackage.getFromByte(info.getId()), info);
 	}
 	
 	/**
@@ -161,8 +161,8 @@ public abstract class PackageManager {
 	 * @param id A byte array of the id.
 	 * @param callback The callback function.
 	 * */
-	public void setPackageCallBack(byte[] id, PackageCallBack callback) {
-		setPackageCallBack(DataPackage.getIntFromByte(id), callback);
+	public void setPackageCallBack(byte[] id, PackageCallback callback) {
+		setPackageCallBack((int)DataPackage.getFromByte(id), callback);
 	}
 	
 	/**
@@ -176,7 +176,7 @@ public abstract class PackageManager {
 	 * @param id The package id.
 	 * @param callback The callback function.
 	 * */
-	public void setPackageCallBack(int id, PackageCallBack callback) {
+	public void setPackageCallBack(int id, PackageCallback callback) {
 		if(getPackageInfo(id) == null)
 			throw new IllegalArgumentException("Could not find package with id: " + id);
 		if(callback == null)
@@ -191,7 +191,7 @@ public abstract class PackageManager {
 	}
 	
 	public PackageInfo getPackageInfo(byte[] id) {
-		return getPackageInfo(DataPackage.getIntFromByte(id));
+		return getPackageInfo((int)DataPackage.getFromByte(id));
 	}
 	
 	public PackageInfo getPackageInfo(int id) {
@@ -199,7 +199,7 @@ public abstract class PackageManager {
 	}
 	
 	public boolean hasPackage(byte[] id) {
-		return PACKAGELOOKUP.get(DataPackage.getIntFromByte(id)) != null;
+		return PACKAGELOOKUP.get((int)DataPackage.getFromByte(id)) != null;
 	}
 	
 }

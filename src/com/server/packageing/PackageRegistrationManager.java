@@ -65,7 +65,7 @@ public class PackageRegistrationManager {
 	 * @param construct a constructor function for the package manager.
 	 * @param packageCallBack Package callback function. Can be null.
 	 * */
-	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallback packageCallBack) {
 		
 		if(construct == null)
 			throw new NullPointerException("Constructor can not be null!");
@@ -118,7 +118,7 @@ public class PackageRegistrationManager {
 	 * @param construct a constructor function for the package manager.
 	 * @param packageCallBack Package callback function. Can be null.
 	 * */
-	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallback packageCallBack) {
 		register(DefaultPackageManager.class, pack, construct, packageCallBack);
 	}
 	
@@ -184,7 +184,7 @@ public class PackageRegistrationManager {
 	 * @param construct a wrapper function for a package constructor.
 	 * @param packageCallBack a callback function executed by the package when received.
 	 * */
-	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallBack packageCallBack) {
+	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct, PackageCallback packageCallBack) {
 		register(type, new PackageInfo(id, length, dynamicLength, construct, packageCallBack));
 	}
 	
@@ -211,7 +211,7 @@ public class PackageRegistrationManager {
 		if(info.getConstruct() == null) 
 			throw new NullPointerException("Package constructor can not be null!");
 		if(hasPackage(type, info.getId())) 
-			throw new IllegalArgumentException("Cannot register package with id: (" + DataPackage.getIntFromByte(info.getId()) + ")! A package is already registered under that id! ");
+			throw new IllegalArgumentException("Cannot register package with id: (" + DataPackage.getFromByte(info.getId()) + ")! A package is already registered under that id! ");
 		
 		if(getAllPackagesForManager(type) == null)
 			REGISTERED_PACKAGES.put(type, new HashSet<>());
@@ -222,14 +222,14 @@ public class PackageRegistrationManager {
 	}
 	
 	public PackageInfo getPackageInfo(Class<? extends PackageManager> type, byte[] id) {
-		return getPackageInfo(type, DataPackage.getIntFromByte(id));
+		return getPackageInfo(type, (int)DataPackage.getFromByte(id));
 	}
 	
 	public PackageInfo getPackageInfo(Class<? extends PackageManager> type, int id) {
 		Set<PackageInfo> out = REGISTERED_PACKAGES.get(type);
 		if(out == null) return null;
 		for(PackageInfo i : out) {
-			if(id == DataPackage.getIntFromByte(i.getId())) {
+			if(id == (int)DataPackage.getFromByte(i.getId())) {
 				return i;
 			}
 		}
@@ -255,8 +255,8 @@ public class PackageRegistrationManager {
 	 * @param id A byte array of the id.
 	 * @param callback The callback function.
 	 * */
-	public void setPackageCallBack(Class<? extends PackageManager> type, byte[] id, PackageCallBack callback) {
-		setPackageCallBack(type, DataPackage.getIntFromByte(id), callback);
+	public void setPackageCallBack(Class<? extends PackageManager> type, byte[] id, PackageCallback callback) {
+		setPackageCallBack(type, (int)DataPackage.getFromByte(id), callback);
 	}
 	
 	/**
@@ -271,7 +271,7 @@ public class PackageRegistrationManager {
 	 * @param id The package id.
 	 * @param callback The callback function.
 	 * */
-	public void setPackageCallBack(Class<? extends PackageManager> type, int id, PackageCallBack callback) {
+	public void setPackageCallBack(Class<? extends PackageManager> type, int id, PackageCallback callback) {
 		if(getPackageInfo(type, id) == null) 
 			throw new IllegalArgumentException("Could not find package with id: " + id);
 		if(callback == null)

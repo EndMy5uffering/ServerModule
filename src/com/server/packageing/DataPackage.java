@@ -113,8 +113,7 @@ public class DataPackage{
 	 * If the byte array is larger then 4 byte information might be lost.<br>
 	 * If the byte array is smaller then 1 or null the function will return <b>-1</b>
 	 * */
-	@Deprecated
-	public static int getIntFromByte(byte[] b) {
+	public static long getFromByte(byte[] b) {
 		ByteBuffer buffer = ByteBuffer.wrap(b);
 		if(b == null) return -1;
 		if(b.length < 4 && b.length > 1) {
