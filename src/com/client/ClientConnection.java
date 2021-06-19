@@ -123,7 +123,6 @@ public class ClientConnection{
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
 						int length = DataPackage.getIntFromByte(rawData);
-						Server.logger.log(Level.DEBUG, "Package Length: " + length);
 						if(length >= 0 && length < Server.getMaxPackageSize()) {
 							rawData = new byte[length];
 							reader.read(rawData);
@@ -175,7 +174,6 @@ public class ClientConnection{
 			try {
 				out.write(data.pack());
 				out.flush();
-				Server.logger.log(Level.DEBUG, "SEND: " + data.toString());
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());
 				disable();

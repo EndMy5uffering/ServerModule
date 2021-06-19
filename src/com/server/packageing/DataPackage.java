@@ -207,6 +207,24 @@ public class DataPackage{
 		return s.getBytes();
 	}
 	
+	public static byte[] toByte(int i) {
+		ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+		buffer.putInt(i);
+		return buffer.array();
+	}
+	
+	public static byte[] toByte(long l) {
+		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+		buffer.putLong(l);
+		return buffer.array();
+	}
+	
+	public static byte[] toByte(short s) {
+		ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
+		buffer.putShort(s);
+		return buffer.array();
+	}
+	
 	public static float toFloat(byte[] d) {
 		return ByteBuffer.wrap(d).asFloatBuffer().get();
 	}
@@ -218,6 +236,27 @@ public class DataPackage{
 	
 	public static String toString(byte[] d) {
 		return new String(d);
+	}
+	
+	public static int toInt(byte[] d) {
+		if(d.length != Integer.BYTES) 
+			throw new IllegalArgumentException("Can not convert byte array of size: " + d.length + " to int. To convert to int the byte array needs a size of: " + Integer.BYTES);
+		ByteBuffer buffer = ByteBuffer.wrap(d);
+		return buffer.getInt();
+	}
+	
+	public static long toLong(byte[] d) {
+		if(d.length != Long.BYTES) 
+			throw new IllegalArgumentException("Can not convert byte array of size: " + d.length + " to long. To convert to long the byte array needs a size of: " + Long.BYTES);
+		ByteBuffer buffer = ByteBuffer.wrap(d);
+		return buffer.getLong();
+	}
+	
+	public static short toShort(byte[] d) {
+		if(d.length != Short.BYTES) 
+			throw new IllegalArgumentException("Can not convert byte array of size: " + d.length + " to short. To convert to short the byte array needs a size of: " + Short.BYTES);
+		ByteBuffer buffer = ByteBuffer.wrap(d);
+		return buffer.getShort();
 	}
 	
 	@Override
