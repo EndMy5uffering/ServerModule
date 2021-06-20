@@ -98,37 +98,40 @@ public class DatabaseManager {
 	
 	public void startAsyncWorker() {
 		SqlStatementThread = new Thread(() -> {
+
+			Connection conn;
+			try {
+				conn = openNewConnection();
+			} catch (SQLException e2) {
+				Server.getLogger().log(Level.ERROR, "Could not open async database connection!");
+				return;
+			}
+			
 			while(StatementThread) {
-				
 				try {
 					lock.acquire();
 				} catch (InterruptedException e) {
 					return;
 				}
 				if(!StatementThread) return;
-				Connection conn;
-				try {
-					conn = openNewConnection();
-					ArrayList<String> toRemove = new ArrayList<>();
-					
-					while(!SQLStatements.isEmpty()) {
-						for(String s : SQLStatements) {
-							try {
-								PreparedStatement statement = conn.prepareStatement(s);
-								statement.execute();
-								toRemove.add(s);
-							} catch (SQLException e) {
-								e.printStackTrace();
-							}
-						}
-						for(String s : toRemove) {
-							SQLStatements.remove(s);
+				ArrayList<String> toRemove = new ArrayList<>();
+				
+				while(!SQLStatements.isEmpty()) {
+					for(String s : SQLStatements) {
+						try {
+							PreparedStatement statement = conn.prepareStatement(s);
+							statement.execute();
+							toRemove.add(s);
+						} catch (SQLException e) {
+							Server.getLogger().log(Level.ERROR, "Error while executing async sql statment");
+							Server.getLogger().log(Level.ERROR, e);
 						}
 					}
-
-				} catch (SQLException e1) {
-					e1.printStackTrace();
+					for(String s : toRemove) {
+						SQLStatements.remove(s);
+					}
 				}
+				lock.release();
 			}
 		});
 		SqlStatementThread.start();
@@ -145,23 +148,45 @@ public class DatabaseManager {
 	}
 	
 	public void asyncSqlStatements(List<String> list) {
-		SQLStatements.addAll(list);
-		lock.release();
+		try {
+			lock.acquire();
+			SQLStatements.addAll(list);
+			lock.release();
+		} catch (InterruptedException e) {
+			Server.getLogger().log(Level.ERROR, "Could not add async SQL statements!");
+			Server.getLogger().log(Level.ERROR, e);
+		}
+		
 	}
 	
 	public void asyncSqlStatement(String statement) {
-		SQLStatements.add(statement);
-		lock.release();
+		try {
+			lock.acquire();
+			SQLStatements.add(statement);
+			lock.release();
+		} catch (InterruptedException e) {
+			Server.getLogger().log(Level.ERROR, "Could not add async SQL statement!");
+			Server.getLogger().log(Level.ERROR, e);
+		}
+		
 	}
 	
-	public boolean executeQuerry(String querry) throws SQLException {
-		PreparedStatement statement = connection.prepareStatement(querry);
+	public void asyncSqlStatement(QueryObject query) {
+		asyncSqlStatement(query.getQuery());
+	}
+	
+	public boolean executeQuery(String query) throws SQLException {
+		PreparedStatement statement = connection.prepareStatement(query);
 		boolean out = statement.execute();
 		return out;
 	}
 	
-	public int executeUpdate(String querry) throws SQLException {
-		PreparedStatement statement = connection.prepareStatement(querry);
+	public boolean executeQuery(QueryObject query) throws SQLException {
+		return executeQuery(query.getQuery());
+	}
+	
+	public int executeUpdate(String query) throws SQLException {
+		PreparedStatement statement = connection.prepareStatement(query);
 		int out = statement.executeUpdate();
 		return out;
 	}
@@ -169,7 +194,7 @@ public class DatabaseManager {
 	public boolean testConnection() {
 		if(this.connection == null) return false;
 		try {
-			if(executeQuerry("SELECT 1;")) return true;
+			if(executeQuery("SELECT 1;")) return true;
 		} catch (SQLException e) {
 			return false;
 		}
@@ -187,23 +212,23 @@ public class DatabaseManager {
 	}
 	
 	public boolean hasTable(String TableName) {
-		String querry = "SELECT * FROM " + TableName;
+		String query = "SELECT * FROM " + TableName;
 		try {
-			return executeQuerry(querry);
+			return executeQuery(query);
 		} catch (SQLException e) {
 			return false;
 		}
 	}
 	
-	public synchronized ResultSet getData(String querry) throws SQLException {
+	public synchronized ResultSet getData(String query) throws SQLException {
 		Statement stmt = connection.createStatement();
-		ResultSet out = stmt.executeQuery(querry);
+		ResultSet out = stmt.executeQuery(query);
 		return out;
 	}
 	
-//	public synchronized void getDataAsync(String querry, AsyncTask worker) {
-//		
-//	}
+	public synchronized ResultSet getData(QueryObject query) throws SQLException {
+		return getData(query.getQuery());
+	}
 	
 	public static DatabaseInfo getDatabaseInfo(String url, String name, String pass) {
 		return new DatabaseInfo(url, name, pass);
@@ -217,14 +242,55 @@ public class DatabaseManager {
 		return (this.dbInfo.getUser() != null && this.dbInfo.getPass() != null ? DriverManager.getConnection(this.dbInfo.getUrl(), this.dbInfo.getUser(), this.dbInfo.getPass()) : DriverManager.getConnection(this.dbInfo.getUrl()));
 	}
 
-
 	public Connection getConnection() {
 		return connection;
 	}
 
-
 	public void setConnection(Connection connection) {
 		this.connection = connection;
+	}
+	
+	public static QueryObject getINSERT(String table, String... args) {
+		if(args.length%2 != 0)
+			throw new IllegalArgumentException("Arguments are read in pairs of two (column name, column value)");
+
+		QueryObject InsertQueryObject = new QueryObject("INSERT", table);
+		
+		for(int i = 0; i < args.length; i += 2) {
+			InsertQueryObject.addValue(args[i], args[i+1]);
+		}
+		
+		return InsertQueryObject;
+	}
+	
+	public static QueryObject getSELECT(String table, String... args) {
+		if(args.length%2 != 0)
+			throw new IllegalArgumentException("Arguments are read in pairs of two (column name, column value)");
+
+		QueryObject InsertQueryObject = new QueryObject("INSERT", table);
+		
+		for(int i = 0; i < args.length; i += 2) {
+			InsertQueryObject.addArgument(args[i], args[i+1]);
+		}
+		
+		return InsertQueryObject;
+	}
+	
+	public static QueryObject getDELETE(String table, String... args) {
+		if(args.length%2 != 0)
+			throw new IllegalArgumentException("Arguments are read in pairs of two (column name, column value)");
+
+		QueryObject InsertQueryObject = new QueryObject("DELETE", table);
+		
+		for(int i = 0; i < args.length; i += 2) {
+			InsertQueryObject.addValue(args[i], args[i+1]);
+		}
+		
+		return InsertQueryObject;
+	}
+	
+	public static QueryObject getQuery(String query) { 
+		return QueryObject.getQueryObject(query);
 	}
 	
 }
@@ -286,11 +352,3 @@ class DatabaseInfo{
 		return "URL:\t" + (url != null ? url : "null") + "\nName:\t" + (user != null ? user : "null");
 	}
 }
-
-//create async worker for getting data from database
-
-//interface AsyncDataWorker{
-//	
-//	void work(ResultSet results);
-//	
-//}
