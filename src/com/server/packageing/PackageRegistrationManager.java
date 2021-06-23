@@ -1,6 +1,9 @@
 package com.server.packageing;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,19 +16,23 @@ import com.server.basepackages.PostData;
 import com.server.basepackages.ReconnectPackage;
 import com.server.basepackages.RemoteClosedConnection;
 import com.server.basepackages.RequestData;
+import com.server.packageing.annotations.DataPackageConstructor;
+import com.server.packageing.annotations.DataPackageDynamic;
+import com.server.packageing.annotations.DataPackageID;
+import com.server.packageing.annotations.DataPackageLength;
 
 public class PackageRegistrationManager {
 
 	private HashMap<Class<? extends PackageManager>, Set<PackageInfo>> REGISTERED_PACKAGES = new HashMap<>();
 	
 	public PackageRegistrationManager() {
-		register(DefaultPackageManager.class, CloseConnection.class, (l,d,b) -> {return new CloseConnection();});
-		register(DefaultPackageManager.class, KeepAlive.class, (l,d,b) -> {return new KeepAlive();});
-		register(DefaultPackageManager.class, MessagePackage.class, (l,d,b) -> {return new MessagePackage(b);});
-		register(DefaultPackageManager.class, PostData.class, (l,d,b) -> {return new PostData(b);});
-		register(DefaultPackageManager.class, ReconnectPackage.class, (l,d,b) -> {return new ReconnectPackage(b);});
-		register(DefaultPackageManager.class, RequestData.class, (l,d,b) -> {return new RequestData(b);});
-		register(DefaultPackageManager.class, RemoteClosedConnection.class, (l,d,b) -> {return new RemoteClosedConnection();}, (data, con) -> {
+		register(DefaultPackageManager.class, CloseConnection.class, (id,l,d,b) -> {return new CloseConnection();});
+		register(DefaultPackageManager.class, KeepAlive.class, (id,l,d,b) -> {return new KeepAlive();});
+		register(DefaultPackageManager.class, MessagePackage.class, (id,l,d,b) -> {return new MessagePackage(b);});
+		register(DefaultPackageManager.class, PostData.class, (id,l,d,b) -> {return new PostData(b);});
+		register(DefaultPackageManager.class, ReconnectPackage.class, (id,l,d,b) -> {return new ReconnectPackage(b);});
+		register(DefaultPackageManager.class, RequestData.class, (id,l,d,b) -> {return new RequestData(b);});
+		register(DefaultPackageManager.class, RemoteClosedConnection.class, (id,l,d,b) -> {return new RemoteClosedConnection();}, (data, con) -> {
 			con.disable(Level.INFO, "Remote closed connection! Stream ended.");
 		});
 	}
@@ -45,6 +52,7 @@ public class PackageRegistrationManager {
 	 * @param pack The .class type of the package that will be register under the give type of package manager.
 	 * @param construct a constructor function for the package manager.
 	 * */
+	@Deprecated
 	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct) {
 		register(type, pack, construct, null);
 	}
@@ -65,6 +73,7 @@ public class PackageRegistrationManager {
 	 * @param construct a constructor function for the package manager.
 	 * @param packageCallBack Package callback function. Can be null.
 	 * */
+	@Deprecated
 	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallback packageCallBack) {
 		
 		if(construct == null)
@@ -102,6 +111,96 @@ public class PackageRegistrationManager {
 			throw new NullPointerException("Variable were not inizialized. If you want to use this function declair the feelds(byte[] ID, short PACK_LENGTH, boolean IS_DYNAMIC_LENGTH)");
 		register(type, id, length, dynLength, construct, packageCallBack);
 	}
+		
+	public void register(Class<? extends PackageManager> type, Class<? extends DataPackage> pack, PackageCallback packageCallBack) {
+		if(type == null)
+			throw new NullPointerException("Type can not be null!");
+		if(pack == null)
+			throw new NullPointerException("Package can not be null!");
+		
+		Field[] fields = pack.getDeclaredFields();
+		boolean hasID = false;
+		boolean hasLenght = false;
+		boolean hasDynLength = false;
+		byte[] id = null;
+		short length = -1;
+		boolean dynLength = false;
+		try {
+			for(Field f : fields) {
+				if(f.isAnnotationPresent(DataPackageID.class)) {
+					hasID = true;
+					id = (byte[]) f.get(f);
+				}else if(f.isAnnotationPresent(DataPackageLength.class)) {
+					hasLenght = true;
+					length = f.getShort(f);
+				}else if(f.isAnnotationPresent(DataPackageDynamic.class)) {
+					hasDynLength = true;
+					dynLength = f.getBoolean(f);
+				}
+				
+			}
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+
+		if(!hasID)
+			throw new IllegalArgumentException("No field was found for 'byte[] ID'. The argument pack requires a 'byte[]' with a @DataPackageID annotation.");
+		if(!hasLenght)
+			throw new IllegalArgumentException("No field was found for 'short LENGTH'. The argument pack requires a 'short' with a @DataPackageLength annotation.");
+		if(!hasDynLength)
+			throw new IllegalArgumentException("No field was found for 'boolean DYNAMIC_LENGTH'. The argument pack requires a 'boolean' with a @DataPackageDynamic annotation.");
+		
+		
+		boolean hasConstructor = false;
+		PackageConstructor constructor = null;
+		for(Constructor<?> c : pack.getDeclaredConstructors()) {
+			if(c.isAnnotationPresent(DataPackageConstructor.class)) {
+				DataPackageConstructor annotation = c.getAnnotation(DataPackageConstructor.class);
+				
+				hasConstructor = true;
+				
+				Class<?>[] parameterTypes = c.getParameterTypes();
+				Class<?>[] templateParameterTypes = new Class<?>[] {new byte[0].getClass(), short.class, boolean.class, new byte[0].getClass()};
+				
+				if(!annotation.ID()) templateParameterTypes[0] = null;
+				if(!annotation.LENGTH()) templateParameterTypes[1] = null;
+				if(!annotation.DYNAMIC()) templateParameterTypes[2] = null;
+				if(!annotation.DATA()) templateParameterTypes[3] = null;
+				
+				if(!hasCorrectParameterOrder(templateParameterTypes, parameterTypes))
+					throw new IllegalArgumentException("Declaird constructor does not conform to the template! Arguments can not be out of order!");
+				
+				constructor = (packageID, packageLength, dynamicLength, byteDataRaw) -> {
+					ArrayList<Object> initArray = new ArrayList<>();
+					if(annotation.ID()) initArray.add(packageID);
+					if(annotation.LENGTH()) initArray.add(packageLength);
+					if(annotation.DYNAMIC()) initArray.add(dynamicLength);
+					if(annotation.DATA()) initArray.add(byteDataRaw);
+					Object[] initArgs = initArray.toArray();
+					try {
+						return (DataPackage) c.newInstance(initArgs);
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+							| InvocationTargetException e) {
+						e.printStackTrace();
+						return null;
+					}
+				};
+				break;
+			}
+		}
+		
+		if(!hasConstructor)
+			throw new IllegalArgumentException("No constructor was found with a @DataPackageConstructor annoation!");
+		
+		register(type, id, length, dynLength, constructor, packageCallBack);
+	}
+	
+	public void register(Class<? extends DataPackage> pack, PackageCallback packageCallBack) {
+		register(DefaultPackageManager.class, pack, packageCallBack);
+	}
+	
 	
 	/**
 	 * Registers a package to the DefaultPackageManager.class.<br>
@@ -118,6 +217,7 @@ public class PackageRegistrationManager {
 	 * @param construct a constructor function for the package manager.
 	 * @param packageCallBack Package callback function. Can be null.
 	 * */
+	@Deprecated
 	public void register(Class<? extends DataPackage> pack, PackageConstructor construct, PackageCallback packageCallBack) {
 		register(DefaultPackageManager.class, pack, construct, packageCallBack);
 	}
@@ -136,6 +236,7 @@ public class PackageRegistrationManager {
 	 * @param pack The .class type of the package that will be register under the give type of package manager.
 	 * @param construct a constructor function for the package manager.
 	 * */
+	@Deprecated
 	public void register(Class<? extends DataPackage> pack, PackageConstructor construct) {
 		register(DefaultPackageManager.class, pack, construct, null);
 	}
@@ -158,6 +259,7 @@ public class PackageRegistrationManager {
 	 * @param dynamicLength Modifier for the dynamic length
 	 * @param construct a wrapper function for a package constructor.
 	 * */
+	@Deprecated
 	public void register(Class<? extends PackageManager> type, byte[] id, short length, boolean dynamicLength, PackageConstructor construct) {
 		register(type, id, length, dynamicLength, construct, null);
 	}
@@ -291,5 +393,16 @@ public class PackageRegistrationManager {
 	
 	public boolean hasPackage(Class<? extends PackageManager> type, byte[] id) {
 		return getPackageInfo(type, id) != null;
+	}
+	
+	private boolean hasCorrectParameterOrder(Class<?>[] template, Class<?>[] toCompair) {
+		int j = 0;
+		for(int i = 0; i < template.length; i++) {
+			if(j >= toCompair.length) return false;
+			if(template[i] != null && template[i].getTypeName().equals(toCompair[j].getTypeName())) {
+				j++;
+			}
+		}
+		return j == toCompair.length;
 	}
 }

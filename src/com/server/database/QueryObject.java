@@ -1,9 +1,17 @@
 package com.server.database;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.logger.Level;
+import com.server.main.Server;
 
 public class QueryObject {
 	
@@ -55,13 +63,17 @@ public class QueryObject {
 	 * @param args A pair list like the one from QueryObject.getValueList() or QueryObject.getArgumentList()
 	 * */
 	public static String constructValueList(List<Pair<String,String>> args) {
-		String out = "(%s) VALUES (%s)";
-		String next = ",%s";
+		String out = "(%s) VALUES ('%s')";
+		String nextColumn = ",%s";
+		String nextValue = "','%s";
 		int valueCount = 0;
 		for(Pair<String, String> p : args) {
-			if(++valueCount > args.size() -1) next = "";
-			out = String.format(out, p.getFirst() + next, p.getSecond() + next);
+			if(++valueCount > args.size() -1) nextColumn = nextValue = "";
+			out = String.format(out, p.getFirst() + nextColumn, p.getSecond() + nextValue);
 		}
+		
+		if(valueCount == 0) out = String.format(out, "", "");
+		
 		return out;
 	}
 	
@@ -92,6 +104,9 @@ public class QueryObject {
 			if(++valueCount > args.size() -1) next = "";
 			out = String.format(out, p.getFirst(), p.getSecond()) + next;
 		}
+		
+		if(valueCount == 0) out = String.format(out, "", "");
+		
 		return out;
 	}
 
@@ -119,6 +134,53 @@ public class QueryObject {
 		this.ValueList.add(new Pair<String, String>(column, value));
 	}
 	
+	public void addValues(Object o) {
+		addValues(o, 0);
+	}
+	
+	public void addValues(Object o, int... groups) {
+		Set<Integer> groupsOfField = new HashSet<>();
+		for(int i : groups) groupsOfField.add(i);
+		if(!o.getClass().isAnnotationPresent(DatabaseObject.class)) {
+			throw new IllegalArgumentException("Missing DatabaseObject annotation for object: " + o.getClass().getName());
+		}
+		
+		for(Field f : o.getClass().getDeclaredFields()) {
+			f.setAccessible(true);
+			if(f.isAnnotationPresent(DatabaseValue.class)) {
+				if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseValue.class).groups())) {
+					String columnName = f.getAnnotation(DatabaseValue.class).columnName();
+					if(columnName.equals("") || columnName == null) columnName = f.getName();
+					this.ValueList.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
+				}
+			}
+		}
+		
+		for(Method m : o.getClass().getMethods()) {
+			m.setAccessible(true);
+			if(m.isAnnotationPresent(DatabaseValue.class)) {
+				if(inSameGroup(groupsOfField, m.getAnnotation(DatabaseValue.class).groups())) {
+					if(m.getParameterCount() <= 0) {
+						if(m.getReturnType().getSimpleName() != "void") {
+							String columnName = m.getAnnotation(DatabaseValue.class).columnName();
+							if(columnName.equals("") || columnName == null) columnName = m.getName();
+							try {
+								this.ValueList.add(new Pair<String, String>(columnName, getString(m.invoke(o))));
+							} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						}else {
+							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseValue decorator require a none void return type.");
+						}
+					}else {
+						Server.getLogger().log(Level.ERROR, "Can not read function with @DatabaseValue annotation because it has to many argumetns.");
+						Server.getLogger().log(Level.ERROR, "Functions with the @DatabaseValue annotation can not have any arguments");
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Adds arguments to the argument list.
 	 * 
@@ -127,6 +189,78 @@ public class QueryObject {
 	 * */
 	public void addArgument(String column, String value) {
 		this.Args.add(new Pair<String, String>(column, value));
+	}
+	
+	public void addArguments(Object o) {
+		addArguments(o, 0);
+	}
+	
+	public void addArguments(Object o, int... groups) {
+		Set<Integer> groupsOfField = new HashSet<>();
+		for(int i : groups) groupsOfField.add(i);
+		if(!o.getClass().isAnnotationPresent(DatabaseObject.class)) {
+			throw new IllegalArgumentException("Missing DatabaseObject annotation for object: " + o.getClass().getName());
+		}
+
+		for(Field f : o.getClass().getDeclaredFields()) {
+			f.setAccessible(true);
+			if(f.isAnnotationPresent(DatabaseArgument.class)) {
+				if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseArgument.class).groups())) {
+					String columnName = f.getAnnotation(DatabaseArgument.class).columnName();
+					if(columnName.equals("") || columnName == null) columnName = f.getName();
+					this.Args.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
+				}
+			}
+		}
+		
+		for(Method m : o.getClass().getMethods()) {
+			m.setAccessible(true);
+			if(m.isAnnotationPresent(DatabaseArgument.class)) {
+				if(inSameGroup(groupsOfField, m.getAnnotation(DatabaseArgument.class).groups())) {
+					if(m.getParameterCount() <= 0) {
+						if(m.getReturnType().getSimpleName() != "void") {
+							String columnName = m.getAnnotation(DatabaseArgument.class).columnName();
+							if(columnName.equals("") || columnName == null) columnName = m.getName();
+							try {
+								this.Args.add(new Pair<String, String>(columnName, getString(m.invoke(o))));
+							} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						}else {
+							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseArgument decorator require a none void return type.");
+						}
+					}else {
+						Server.getLogger().log(Level.ERROR, "Can not read function with @DatabaseArgument annotation because it has to many argumetns.");
+						Server.getLogger().log(Level.ERROR, "Functions with the @DatabaseArgument annotation can not have any arguments");
+					}
+				}
+			}
+		}
+	}
+	
+	private String getString(Object o) {
+		try {
+			return (String) o;
+		} catch (Exception e) {
+			return String.valueOf(o);
+		}
+	}
+	
+	private Object getValue(Field f, Object o) {
+		try {
+			return f.get(o);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			Server.getLogger().log(Level.ERROR, "Could not get value form field: " + f.getName());
+			Server.getLogger().log(Level.ERROR, e);
+			return null;
+		}
+	}
+	
+	private boolean inSameGroup(Set<Integer> groups, int[] fieldGroups) {
+		for(int i : fieldGroups) {
+			if(groups.contains(i)) return true;
+		}
+		return false;
 	}
 	
 	/**

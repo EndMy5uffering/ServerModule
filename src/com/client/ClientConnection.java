@@ -116,7 +116,7 @@ public class ClientConnection{
 						
 						byte[] rawData = new byte[info.getLength()];
 						reader.read(rawData);
-						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
+						dataOut = info.getConstruct().build(info.getId(), info.getLength(), info.isDynamicLength(), rawData);
 					
 					}else {
 						
@@ -133,7 +133,7 @@ public class ClientConnection{
 							break;
 						}
 					
-						dataOut = info.getConstruct().build(info.getLength(), info.isDynamicLength(), rawData);
+						dataOut = info.getConstruct().build(info.getId() ,info.getLength(), info.isDynamicLength(), rawData);
 					
 					}
 					

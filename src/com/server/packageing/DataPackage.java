@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.logger.Level;
 import com.server.main.Server;
+import com.server.packageing.annotations.DataPackageConstructor;
 
 
 public class DataPackage{
@@ -19,7 +20,8 @@ public class DataPackage{
 	public DataPackage(short length, boolean dynamicLength, byte[] byteDataRaw) {
 		this(new byte[] {0x0, 0x0}, length, dynamicLength, byteDataRaw);
 	}
-	
+
+	@DataPackageConstructor(ID = true, LENGTH = true, DYNAMIC = true, DATA = true)
 	public DataPackage(byte[] id, short length, boolean dynamicLength, byte[] byteDataRaw) {
 		this.byteDataRaw = byteDataRaw;
 		this.length = length;
@@ -157,7 +159,7 @@ public class DataPackage{
 	 * This function will pad the given array to the new length.<br>
 	 * The given byte array will be written from offset to array.length in the output array.<br>
 	 * 
-	 * @param array The input array that will be padded
+	 * @param array The input array that will be padded.
 	 * @param length The length of the output array.
 	 * @param offset Number of bytes the input array will be offset.
 	 * */
