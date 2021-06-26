@@ -109,7 +109,7 @@ public class QueryObject {
 		
 		return out;
 	}
-
+	
 	/**
 	 * Sets the command name like SELECT, DELETE, INSERT, ...
 	 * */

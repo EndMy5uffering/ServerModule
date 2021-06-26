@@ -45,4 +45,9 @@ public class SessionID {
 		return new SessionID(this);
 	}
 	
+	@Override
+	public String toString() {
+		return this.ID;
+	}
+	
 }

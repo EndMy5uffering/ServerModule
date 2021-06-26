@@ -124,6 +124,7 @@ public class DatabaseManager {
 							toRemove.add(s);
 						} catch (SQLException e) {
 							Server.getLogger().log(Level.ERROR, "Error while executing async sql statment");
+							Server.getLogger().log(Level.ERROR, "Query: " + s);
 							Server.getLogger().log(Level.ERROR, e);
 						}
 					}

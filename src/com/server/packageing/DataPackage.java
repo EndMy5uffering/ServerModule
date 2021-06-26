@@ -264,7 +264,7 @@ public class DataPackage{
 	public String toString() {
 		String out = "";
 		for(byte b : this.pack()) {
-			out += b + " ";
+			out += b + (b > 31 && b < 127 ? "(" + (char)b + ") ": " ");
 		}
 		return out;
 	}
@@ -305,5 +305,4 @@ public class DataPackage{
 		Server.getLogger().log(Level.INFO, out);
 	}
 
-	
 }

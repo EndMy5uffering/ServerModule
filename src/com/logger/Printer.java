@@ -33,6 +33,10 @@ public class Printer {
 		case FlatFile:
 			flatFile(toPrint);
 			break;
+		case FileAndConsole:
+			consolePrint(toPrint + "\n");
+			flatFile(toPrint);
+			break;
 		default:
 			return;
 		}

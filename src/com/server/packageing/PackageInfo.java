@@ -38,4 +38,18 @@ public class PackageInfo{
 	public void setCallback(PackageCallback callback) {
 		this.callback = callback;
 	}
+	
+	private String formatID() {
+		String out = "[";
+		int count = 0;
+		for(byte b : id) {
+			out += b + (count++ < id.length-1 ? " " : "");
+		}
+		return out+"]";
+	}
+	
+	@Override
+	public String toString() {
+		return "{ID: " + formatID() + " ,Length: " + length + ", Dynamic: " + dynamicLength + "}";
+	}
 }

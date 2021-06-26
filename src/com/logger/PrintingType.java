@@ -3,6 +3,7 @@ package com.logger;
 public enum PrintingType {
 
 	FlatFile,
-	Console
+	Console,
+	FileAndConsole
 	
 }

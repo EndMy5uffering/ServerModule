@@ -18,7 +18,7 @@ public class Logger {
 		this.type = printingType;
 		this.mode = mode;
 		FileAccess fileAccess = null;
-		if(printingType == PrintingType.FlatFile) fileAccess = new FileAccess("");
+		if(printingType == PrintingType.FlatFile || printingType == PrintingType.FileAndConsole) fileAccess = new FileAccess("Log");
 		p = new Printer(printingType, mode, fileAccess);
 	}
 	

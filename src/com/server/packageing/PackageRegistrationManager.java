@@ -16,6 +16,7 @@ import com.server.basepackages.PostData;
 import com.server.basepackages.ReconnectPackage;
 import com.server.basepackages.RemoteClosedConnection;
 import com.server.basepackages.RequestData;
+import com.server.main.Server;
 import com.server.packageing.annotations.DataPackageConstructor;
 import com.server.packageing.annotations.DataPackageDynamic;
 import com.server.packageing.annotations.DataPackageID;
@@ -146,11 +147,11 @@ public class PackageRegistrationManager {
 		}
 
 		if(!hasID)
-			throw new IllegalArgumentException("No field was found for 'byte[] ID'. The argument pack requires a 'byte[]' with a @DataPackageID annotation.");
+			throw new IllegalArgumentException("No field was found in " + pack.getName() + " for 'byte[] ID'. The argument pack requires a 'byte[]' with a @DataPackageID annotation.");
 		if(!hasLenght)
-			throw new IllegalArgumentException("No field was found for 'short LENGTH'. The argument pack requires a 'short' with a @DataPackageLength annotation.");
+			throw new IllegalArgumentException("No field was found in " + pack.getName() + " for 'short LENGTH'. The argument pack requires a 'short' with a @DataPackageLength annotation.");
 		if(!hasDynLength)
-			throw new IllegalArgumentException("No field was found for 'boolean DYNAMIC_LENGTH'. The argument pack requires a 'boolean' with a @DataPackageDynamic annotation.");
+			throw new IllegalArgumentException("No field was found int " + pack.getName() + " for 'boolean DYNAMIC_LENGTH'. The argument pack requires a 'boolean' with a @DataPackageDynamic annotation.");
 		
 		
 		boolean hasConstructor = false;
@@ -169,9 +170,23 @@ public class PackageRegistrationManager {
 				if(!annotation.DYNAMIC()) templateParameterTypes[2] = null;
 				if(!annotation.DATA()) templateParameterTypes[3] = null;
 				
-				if(!hasCorrectParameterOrder(templateParameterTypes, parameterTypes))
-					throw new IllegalArgumentException("Declaird constructor does not conform to the template! Arguments can not be out of order!");
-				
+				if(!hasCorrectParameterOrder(templateParameterTypes, parameterTypes)) {
+					String errorMessage = "Read constructor types: ";
+					int count = 0;
+					for(Class<?> classtype: parameterTypes) {
+						count++;
+						if(classtype != null) errorMessage += classtype.getTypeName() + (count < parameterTypes.length ? ", " : "");
+					}
+					errorMessage += " for template: ";
+					count = 0;
+					for(Class<?> classtype: templateParameterTypes) {
+						count++;
+						if(classtype != null) errorMessage += classtype.getTypeName() + (count < templateParameterTypes.length ? ", " : "");
+					}
+					Server.getLogger().log(Level.ERROR, errorMessage);
+					throw new IllegalArgumentException("Declaird constructor does not conform to the template for " + pack.getName() + "! Arguments can not be out of order!");
+				}
+					
 				constructor = (packageID, packageLength, dynamicLength, byteDataRaw) -> {
 					ArrayList<Object> initArray = new ArrayList<>();
 					if(annotation.ID()) initArray.add(packageID);
@@ -192,7 +207,7 @@ public class PackageRegistrationManager {
 		}
 		
 		if(!hasConstructor)
-			throw new IllegalArgumentException("No constructor was found with a @DataPackageConstructor annoation!");
+			throw new IllegalArgumentException("No constructor was found with a @DataPackageConstructor annoation in " + pack.getName() + "!");
 		
 		register(type, id, length, dynLength, constructor, packageCallBack);
 	}
@@ -396,6 +411,11 @@ public class PackageRegistrationManager {
 	}
 	
 	private boolean hasCorrectParameterOrder(Class<?>[] template, Class<?>[] toCompair) {
+		boolean allNull = true;
+		for(Class<?> c : template) {
+			allNull &= c==null;
+		}
+		if(allNull) return true;
 		int j = 0;
 		for(int i = 0; i < template.length; i++) {
 			if(j >= toCompair.length) return false;
@@ -405,4 +425,25 @@ public class PackageRegistrationManager {
 		}
 		return j == toCompair.length;
 	}
+	
+	@Override
+	public String toString() {
+		String out = "";
+		
+		for(Class<? extends PackageManager> packageManager: REGISTERED_PACKAGES.keySet()) {
+			out += packageManager.getSimpleName() + ": [%s]\n";
+			Set<PackageInfo> packages = REGISTERED_PACKAGES.get(packageManager);
+			if(packages != null) {
+				int count = 0;
+				for(PackageInfo info : packages) {
+					out = String.format(out, info.toString() + (count++ < packages.size()-1 ? ",\n%s" : "")); 
+				}
+			}else {
+				out = String.format(out, "");
+			}
+		}
+		
+		return out;
+	}
+	
 }

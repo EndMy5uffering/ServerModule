@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(CONSTRUCTOR)
 public @interface DataPackageConstructor {
-	public boolean ID() default true;
-	public boolean LENGTH() default true;
-	public boolean DYNAMIC() default true;
-	public boolean DATA() default true;
+	public boolean ID() default false;
+	public boolean LENGTH() default false;
+	public boolean DYNAMIC() default false;
+	public boolean DATA() default false;
 }
