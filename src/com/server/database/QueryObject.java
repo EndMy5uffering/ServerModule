@@ -21,6 +21,8 @@ public class QueryObject {
 	//DELETE FROM {TABLE} WHERE {ARGS}
 	
 	private static Map<String, QueryConstructor> QuerryConstruction = new HashMap<>();
+	private static Set<Class<?>> templateTypes = Set.of(int.class, boolean.class, byte.class, short.class, long.class, String.class, Integer.class, Boolean.class, Short.class, Long.class, Byte.class);
+	
 	
 	private String fullQuery = "";
 	private String commandName = "";
@@ -148,11 +150,14 @@ public class QueryObject {
 		for(Field f : o.getClass().getDeclaredFields()) {
 			f.setAccessible(true);
 			if(f.isAnnotationPresent(DatabaseValue.class)) {
-				if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseValue.class).groups())) {
-					String columnName = f.getAnnotation(DatabaseValue.class).columnName();
-					if(columnName.equals("") || columnName == null) columnName = f.getName();
-					this.ValueList.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
-				}
+				if(templateTypes.contains(f.getType())) {
+					if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseValue.class).groups())) {
+						String columnName = f.getAnnotation(DatabaseValue.class).columnName();
+						if(columnName.equals("") || columnName == null) columnName = f.getName();
+						this.ValueList.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
+					}
+				}else {
+					Server.getLogger().log(Level.ERROR, "Can not read field of type: " + f.getType().getSimpleName() + " as value type in: " + o.getClass().getSimpleName());}
 			}
 		}
 		
@@ -161,7 +166,7 @@ public class QueryObject {
 			if(m.isAnnotationPresent(DatabaseValue.class)) {
 				if(inSameGroup(groupsOfField, m.getAnnotation(DatabaseValue.class).groups())) {
 					if(m.getParameterCount() <= 0) {
-						if(m.getReturnType().getSimpleName() != "void") {
+						if(templateTypes.contains(m.getReturnType())) {
 							String columnName = m.getAnnotation(DatabaseValue.class).columnName();
 							if(columnName.equals("") || columnName == null) columnName = m.getName();
 							try {
@@ -170,7 +175,8 @@ public class QueryObject {
 								e.printStackTrace();
 							}
 						}else {
-							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseValue decorator require a none void return type.");
+							Server.getLogger().log(Level.ERROR, "QueryObject error for: " + o.getClass().getSimpleName());
+							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseValue can not have return type: " + m.getReturnType().getSimpleName());
 						}
 					}else {
 						Server.getLogger().log(Level.ERROR, "Can not read function with @DatabaseValue annotation because it has to many argumetns.");
@@ -205,10 +211,14 @@ public class QueryObject {
 		for(Field f : o.getClass().getDeclaredFields()) {
 			f.setAccessible(true);
 			if(f.isAnnotationPresent(DatabaseArgument.class)) {
-				if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseArgument.class).groups())) {
-					String columnName = f.getAnnotation(DatabaseArgument.class).columnName();
-					if(columnName.equals("") || columnName == null) columnName = f.getName();
-					this.Args.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
+				if(templateTypes.contains(f.getType())) {
+					if(inSameGroup(groupsOfField, f.getAnnotation(DatabaseArgument.class).groups())) {
+						String columnName = f.getAnnotation(DatabaseArgument.class).columnName();
+						if(columnName.equals("") || columnName == null) columnName = f.getName();
+						this.Args.add(new Pair<String,String>(columnName, getString(getValue(f, o))));
+					}
+				}else {
+					Server.getLogger().log(Level.ERROR, "Can not read field of type: " + f.getType().getSimpleName() + " as argument type in: " + o.getClass().getSimpleName());
 				}
 			}
 		}
@@ -218,7 +228,7 @@ public class QueryObject {
 			if(m.isAnnotationPresent(DatabaseArgument.class)) {
 				if(inSameGroup(groupsOfField, m.getAnnotation(DatabaseArgument.class).groups())) {
 					if(m.getParameterCount() <= 0) {
-						if(m.getReturnType().getSimpleName() != "void") {
+						if(templateTypes.contains(m.getReturnType())) {
 							String columnName = m.getAnnotation(DatabaseArgument.class).columnName();
 							if(columnName.equals("") || columnName == null) columnName = m.getName();
 							try {
@@ -227,7 +237,8 @@ public class QueryObject {
 								e.printStackTrace();
 							}
 						}else {
-							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseArgument decorator require a none void return type.");
+							Server.getLogger().log(Level.ERROR, "QueryObject error for: " + o.getClass().getSimpleName());
+							Server.getLogger().log(Level.ERROR, "Functions with @DatabaseArgument can not have return type: " + m.getReturnType().getSimpleName());
 						}
 					}else {
 						Server.getLogger().log(Level.ERROR, "Can not read function with @DatabaseArgument annotation because it has to many argumetns.");
