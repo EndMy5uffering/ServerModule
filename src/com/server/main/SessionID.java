@@ -50,4 +50,14 @@ public class SessionID {
 		return this.ID;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof SessionID) {
+			return ((SessionID)other).getID().equals(this.getID());
+		}else if(other instanceof String) {
+			return ((String)other).equals(this.getID());
+		}
+		return false;
+	}
+	
 }

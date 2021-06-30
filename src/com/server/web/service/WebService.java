@@ -12,7 +12,7 @@ import com.server.main.Server;
 import com.sun.net.httpserver.HttpServer;
 
 public class WebService {
-
+	
 	private int port;
 	
 	private HttpServer webServer;
@@ -25,15 +25,19 @@ public class WebService {
 			Server.logger.log(Level.ERROR, e.getMessage());
 		}
 		if(webServer != null) {
-			init();
 			webServer.start();
+			init();
 		}
 		Server.getLogger().log(Level.INFO, "Web server running on: localhost:" + port);
 	}
 	
-	public void init() {
-		String path = Paths.get(System.getProperty("user.dir"), "res","WebTool").toString();
-		
+	public void registerPage(String path, String fileName, Path filePath) {
+		WebFileManager.addFile(fileName,filePath);
+		webServer.createContext(path, WebFileManager.getDefaultFileHandler(fileName));
+	}
+	
+	private void init() {
+		String path = Paths.get("res","WebTool").toString();
 		registerPage("/", "index.html", Paths.get(path, "index.html"));
 		registerPage("/css/mainPage.css", "mainPage.css", Paths.get(path, "css", "mainPage.css"));
 		registerPage("/css/myTable.css", "myTable.css", Paths.get(path, "css", "myTable.css"));
@@ -42,12 +46,7 @@ public class WebService {
 		registerPage("/js/fillTable.js", "fillTable.js", Paths.get(path, "js", "fillTable.js"));
 		registerPage("/assets/servericon2.png", "servericon2.png", Paths.get(path, "assets", "servericon2.png"));
 		registerPage("/assets/servericon.png", "servericon.png", Paths.get(path, "assets", "servericon.png"));
-		
-	}
 	
-	public void registerPage(String path, String fileName, Path filePath) {
-		WebFileManager.addFile(fileName,filePath);
-		webServer.createContext(path, WebFileManager.getDefaultFileHandler(fileName));
 	}
 	
 	public static void main(String... args) {

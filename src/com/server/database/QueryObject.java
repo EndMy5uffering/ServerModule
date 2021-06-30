@@ -140,6 +140,16 @@ public class QueryObject {
 		addValues(o, 0);
 	}
 	
+	public void addValues(Object[] o, int... groups) {
+		for(Object obj: o) {
+			if(groups.length > 0) {
+				addValues(obj, groups);
+			}else {
+				addValues(obj, 0);
+			}
+		}
+	}
+	
 	public void addValues(Object o, int... groups) {
 		Set<Integer> groupsOfField = new HashSet<>();
 		for(int i : groups) groupsOfField.add(i);
@@ -199,6 +209,16 @@ public class QueryObject {
 	
 	public void addArguments(Object o) {
 		addArguments(o, 0);
+	}
+	
+	public void addArguments(Object[] o, int... groups){
+		for(Object obj : o) {
+			if(groups.length > 0) {
+				addArguments(obj, groups);
+			}else {
+				addArguments(obj, 0);
+			}
+		}
 	}
 	
 	public void addArguments(Object o, int... groups) {

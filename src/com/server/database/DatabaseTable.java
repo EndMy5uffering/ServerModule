@@ -24,6 +24,85 @@ public class DatabaseTable {
 		this.tableName = tableName;
 	}
 	
+	public<T> List<T> getColumn(Class<T> t, String queryName, int column) throws SQLException{
+		QueryObject q = new QueryObject(queryName, this.tableName);
+		return getColumn(t, q, column);
+	}
+	
+	public<T> List<T> getColumn(Class<T> t, QueryObject query, int column) throws SQLException{
+		List<T> resultList = new ArrayList<T>();
+		if(templateTypes.contains(t)) {
+			ResultSet resultData = this.databaseManager.getData(query);
+			while(resultData.next()) {
+				Object tocast = resultData.getObject(column);
+				try {
+					T casted = safeCast(tocast, t);
+					if(casted != null) resultList.add(casted);
+				} catch (Exception e) {
+					Server.getLogger().log(Level.ERROR, "Could not cast " + tocast.getClass().getSimpleName() + " to " + t.getSimpleName());
+					return new ArrayList<>();
+				}
+			}
+		}else {
+			throw new IllegalArgumentException("Argument T was not a base type arguemnt but instead: " + t.getSimpleName());
+		}
+		
+		return resultList;
+	}
+	
+	public<T> List<T> getColumn(Class<T> t, String queryName, String column) throws SQLException{
+		QueryObject q = new QueryObject(queryName, this.tableName);
+		return getColumn(t, q, column);
+	}
+	
+	public<T> List<T> getColumn(Class<T> t, QueryObject query, String column) throws SQLException{
+		List<T> resultList = new ArrayList<T>();
+		if(templateTypes.contains(t)) {
+			ResultSet resultData = this.databaseManager.getData(query);
+			while(resultData.next()) {
+				Object tocast = resultData.getObject(column);
+				try {
+					T casted = safeCast(tocast, t);
+					if(casted != null) resultList.add(casted);
+				} catch (Exception e) {
+					Server.getLogger().log(Level.ERROR, "Could not cast " + tocast.getClass().getSimpleName() + " to " + t.getSimpleName());
+					return new ArrayList<>();
+				}
+			}
+		}else {
+			throw new IllegalArgumentException("Argument T was not a base type arguemnt but instead: " + t.getSimpleName());
+		}
+		
+		return resultList;
+	}
+	
+	public<T,S> List<S> getColumnPacked(Class<T> columnType, Class<S> returnType, String queryName, String column, PackedObject packing) throws SQLException{
+		QueryObject q = new QueryObject(queryName, this.tableName);
+		return getColumnPacked(columnType, returnType, q, column, packing);
+	}
+	
+	public<T,S> List<S> getColumnPacked(Class<T> columnType, Class<S> returnType, QueryObject query, String column, PackedObject packing) throws SQLException{
+		List<S> resultList = new ArrayList<S>();
+		if(templateTypes.contains(columnType)) {
+			ResultSet resultData = this.databaseManager.getData(query);
+			while(resultData.next()) {
+				Object tocast = resultData.getObject(column);
+				try {
+					T casted = safeCast(tocast, columnType);
+					S outputObject = packing.pack(casted, returnType);
+					if(casted != null) resultList.add(outputObject);
+				} catch (Exception e) {
+					Server.getLogger().log(Level.ERROR, "Could not cast " + tocast.getClass().getSimpleName() + " to " + columnType.getSimpleName());
+					return new ArrayList<>();
+				}
+			}
+		}else {
+			throw new IllegalArgumentException("Argument T was not a base type arguemnt but instead: " + columnType.getSimpleName());
+		}
+		
+		return resultList;
+	}
+	
 	public<T> List<T> getAllDatabaseObject(Class<T> t, String queryName) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, SQLException{
 		return getAllDatabaseObject(t, new QueryObject(queryName, tableName));
 	}
@@ -33,6 +112,9 @@ public class DatabaseTable {
 	}
 	
 	public<T> List<T> getAllDatabaseObject(Class<T> t, QueryObject query, int... argGroup) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
+		if(!t.isAnnotationPresent(DatabaseObject.class)) {
+			throw new IllegalArgumentException("Can not get non database object from database! Add @" + DatabaseObject.class.getSimpleName() + " Annotaiton to the object you want to construt.");
+		}
 		Constructor<?> myConstructor = getConstructorForClass(t);
 				
 		ResultSet resultData = this.databaseManager.getData(query);
