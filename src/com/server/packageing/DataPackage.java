@@ -186,6 +186,7 @@ public class DataPackage{
 		byte[] out = new byte[to - from];
 		
 		for(int i = from; i < to; i++) {
+			if(i >= a.length) return new byte[] {};
 			out[i-from] = a[i];
 		}
 		

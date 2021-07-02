@@ -1,11 +1,14 @@
 package com.server.web.service;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import com.logger.Level;
 import com.server.main.Server;
@@ -16,13 +19,14 @@ public class WebService {
 	private int port;
 	
 	private HttpServer webServer;
+	private HashMap<Integer, Server> portsToServer = new HashMap<>();
 		
-	public WebService(int port) {		
+	public WebService(int port) {
 		this.port = port;
 		try {
 			webServer = HttpServer.create(new InetSocketAddress(port), 0);
 		} catch (IOException e) {
-			Server.logger.log(Level.ERROR, e.getMessage());
+			Server.logger.log(Level.INFO, e.getMessage());
 		}
 		if(webServer != null) {
 			webServer.start();
@@ -31,22 +35,50 @@ public class WebService {
 		Server.getLogger().log(Level.INFO, "Web server running on: localhost:" + port);
 	}
 	
+	public void registerServer(int port, Server s) {
+		this.portsToServer.put(port, s);
+	}
+	
 	public void registerPage(String path, String fileName, Path filePath) {
 		WebFileManager.addFile(fileName,filePath);
 		webServer.createContext(path, WebFileManager.getDefaultFileHandler(fileName));
 	}
 	
 	private void init() {
-		String path = Paths.get("res","WebTool").toString();
-		registerPage("/", "index.html", Paths.get(path, "index.html"));
-		registerPage("/css/mainPage.css", "mainPage.css", Paths.get(path, "css", "mainPage.css"));
-		registerPage("/css/myTable.css", "myTable.css", Paths.get(path, "css", "myTable.css"));
-		registerPage("/css/customFonts.css", "customFonts.css", Paths.get(path, "css", "customFonts.css"));
-		registerPage("/css/customScroll.css", "customScroll.css", Paths.get(path, "css", "customScroll.css"));
-		registerPage("/js/fillTable.js", "fillTable.js", Paths.get(path, "js", "fillTable.js"));
-		registerPage("/assets/servericon2.png", "servericon2.png", Paths.get(path, "assets", "servericon2.png"));
-		registerPage("/assets/servericon.png", "servericon.png", Paths.get(path, "assets", "servericon.png"));
-	
+		URL url = getClass().getResource("../../../..");
+		Path path;
+		try {
+			path = Paths.get(url.toURI()).resolve("res").resolve("WebTool");
+			registerPage("/", "index.html", path.resolve("index.html"));
+			registerPage("/css/mainPage.css", "mainPage.css", path.resolve(Paths.get("css", "mainPage.css")));
+			registerPage("/css/myTable.css", "myTable.css", path.resolve(Paths.get("css", "myTable.css")));
+			registerPage("/css/customFonts.css", "customFonts.css", path.resolve(Paths.get("css", "customFonts.css")));
+			registerPage("/css/customScroll.css", "customScroll.css", path.resolve(Paths.get("css", "customScroll.css")));
+			registerPage("/js/fillTable.js", "fillTable.js", path.resolve(Paths.get("js", "fillTable.js")));
+			registerPage("/assets/servericon2.png", "servericon2.png", path.resolve(Paths.get("assets", "servericon2.png")));
+			registerPage("/assets/servericon.png", "servericon.png", path.resolve(Paths.get("assets", "servericon.png")));
+		
+			
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		webServer.createContext("/api/test", (he) -> {
+			System.out.println(he.getRequestURI().toString());
+			System.out.println(he.getRequestMethod());
+			System.out.println(he.getRequestURI().getRawPath());
+			System.out.println(he.getRequestURI().getRawQuery());
+			InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
+            BufferedReader br = new BufferedReader(isr);
+            br.lines().forEach(x -> {System.out.println(x);});
+			
+			String response = "{\"message\": \"response\"}";
+			he.sendResponseHeaders(200, response.length());
+			he.getResponseBody().write(response.getBytes());
+			he.getResponseBody().flush();
+			he.getResponseBody().close();
+		});
+		
 	}
 	
 	public static void main(String... args) {

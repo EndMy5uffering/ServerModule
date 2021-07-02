@@ -1,0 +1,59 @@
+<html>
+
+    <head>
+        <title>WebEditor</title>
+        <link rel="stylesheet" href="css/mainPage.css">
+        <link rel="stylesheet" href="css/myTable.css">
+        <link rel="stylesheet" href="css/customScroll.css">
+        <link rel="stylesheet" href="css/customFonts.css">
+        <link rel="icon" href="assets/servericon.png">
+        <script src="js/fillTable.js"></script>
+    </head>
+
+   <body>
+        <div class="grid">
+            <div class="sideContent">
+                    <div class="TopSelection">
+                        
+                        <div class="TopSelectionItem" onclick="fillSideTable('shops');" id="shopsSelection">
+                            <img src="assets/servericon2.png">
+                            <span>Servers<br>25565</span>
+                        </div>
+                        
+                    </div>
+                <div class="sideMenu" id="sideMenu1">
+                    
+                    <div class="sideMenuItem">
+                        <input type="radio" name="SideSelection">
+                        <span>Connection_01</span>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+            <div class="pageBody">
+                <div class="TobMenuBody" id="topmenu1">
+                    <button onclick="APICALL();">API TEST CALL</button>
+                </div>
+
+                <div class="pageBodyItem">
+                    <div class="DataTable">
+                        <div class="DataHeaders" id="table1_head">
+                            <div class="DataHeader_Container">
+                                <span class="DataHeader_item">This is some test data overview</span>
+                            </div>
+                        </div>
+                        <div class="DataBody" id="table1">
+                            <div class='DataItems'>
+                                <span class='DataItem'>item1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    
+
+</html>

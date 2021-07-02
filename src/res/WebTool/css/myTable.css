@@ -1,0 +1,91 @@
+.DataTable{
+    display: flex;
+    flex-direction: column;
+    background:white;
+    width: 100%;
+    background-color: #485460;
+    height: 100%;
+    overflow: hidden;
+}
+
+.DataHeaders{
+    color: #222f3e;
+    background-color:darkgray;
+    box-sizing: border-box;
+    border-top: 8px solid #ced6e0;
+    border-left: 8px solid #ced6e0;
+    border-bottom: 8px solid #747d8c;
+    border-right: 8px solid #747d8c;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.DataHeader_Container{
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.DataHeader_item{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden;
+}
+
+.DataBody{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.DataItems{
+    transition: 0.5s;
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.DataItems:hover{
+    transition: 0.5s 0.5s;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.DataItems:hover .DataItem{
+    transition: 0.5s 0.5s;
+    margin-left: 0px;
+    margin-right: 0px;
+    font-size: 30px;
+    background-color: #c8d6e5;
+    border-left: 1px solid #576574;
+    border-right: 1px solid #576574;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: auto;
+}
+
+.DataItem{
+    transition: 0.5s;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+    background-color: #8395a7;
+    color: #2d3436;
+    border-top: 3px solid #ced6e0;
+    border-left: 3px solid #ced6e0;
+    border-bottom: 3px solid #747d8c;
+    border-right: 3px solid #747d8c;
+    margin-right: 2px;
+    margin-left: 2px;
+    overflow: hidden;
+}

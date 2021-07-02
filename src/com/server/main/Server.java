@@ -23,7 +23,7 @@ import com.server.packageing.UnknownPackageCallback;
 
 public class Server {
 
-	public static Logger logger = new Logger(PrintingType.Console, PrintMode.Event);
+	public static Logger logger = new Logger(PrintingType.FileAndConsole, PrintMode.Event);
 	
 	private final ClientManager clientManager;
 	private PackageManager defaultPackageManager;

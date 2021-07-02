@@ -1,0 +1,455 @@
+[21:00:08 INFO]: Web server running on: localhost:25565
+[21:00:13 INFO]: Request for: index.html
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\index.html
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: <html>
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     <head>
+[21:00:13 INFO]:         <title>WebEditor</title>
+[21:00:13 INFO]:         <link rel="stylesheet" href="css/mainPage.css">
+[21:00:13 INFO]:         <link rel="stylesheet" href="css/myTable.css">
+[21:00:13 INFO]:         <link rel="stylesheet" href="css/customScroll.css">
+[21:00:13 INFO]:         <link rel="stylesheet" href="css/customFonts.css">
+[21:00:13 INFO]:         <link rel="icon" href="assets/servericon.png">
+[21:00:13 INFO]:         <script src="js/fillTable.js"></script>
+[21:00:13 INFO]:     </head>
+[21:00:13 INFO]: 
+[21:00:13 INFO]:    <body>
+[21:00:13 INFO]:         <div class="grid">
+[21:00:13 INFO]:             <div class="sideContent">
+[21:00:13 INFO]:                     <div class="TopSelection">
+[21:00:13 INFO]:                         
+[21:00:13 INFO]:                         <div class="TopSelectionItem" onclick="fillSideTable('shops');" id="shopsSelection">
+[21:00:13 INFO]:                             <img src="assets/servericon2.png">
+[21:00:13 INFO]:                             <span>Servers<br>25565</span>
+[21:00:13 INFO]:                         </div>
+[21:00:13 INFO]:                         
+[21:00:13 INFO]:                     </div>
+[21:00:13 INFO]:                 <div class="sideMenu" id="sideMenu1">
+[21:00:13 INFO]:                     
+[21:00:13 INFO]:                     <div class="sideMenuItem">
+[21:00:13 INFO]:                         <input type="radio" name="SideSelection">
+[21:00:13 INFO]:                         <span>Connection_01</span>
+[21:00:13 INFO]:                     </div>
+[21:00:13 INFO]:                     
+[21:00:13 INFO]:                 </div>
+[21:00:13 INFO]:             </div>
+[21:00:13 INFO]: 
+[21:00:13 INFO]: 
+[21:00:13 INFO]:             <div class="pageBody">
+[21:00:13 INFO]:                 <div class="TobMenuBody" id="topmenu1">
+[21:00:13 INFO]:                     <button onclick="APICALL();">API TEST CALL</button>
+[21:00:13 INFO]:                 </div>
+[21:00:13 INFO]: 
+[21:00:13 INFO]:                 <div class="pageBodyItem">
+[21:00:13 INFO]:                     <div class="DataTable">
+[21:00:13 INFO]:                         <div class="DataHeaders" id="table1_head">
+[21:00:13 INFO]:                             <div class="DataHeader_Container">
+[21:00:13 INFO]:                                 <span class="DataHeader_item">This is some test data overview</span>
+[21:00:13 INFO]:                             </div>
+[21:00:13 INFO]:                         </div>
+[21:00:13 INFO]:                         <div class="DataBody" id="table1">
+[21:00:13 INFO]:                             <div class='DataItems'>
+[21:00:13 INFO]:                                 <span class='DataItem'>item1</span>
+[21:00:13 INFO]:                             </div>
+[21:00:13 INFO]:                         </div>
+[21:00:13 INFO]:                     </div>
+[21:00:13 INFO]:                 </div>
+[21:00:13 INFO]:             </div>
+[21:00:13 INFO]:         </div>
+[21:00:13 INFO]:     </body>
+[21:00:13 INFO]:     
+[21:00:13 INFO]: 
+[21:00:13 INFO]: </html>
+[21:00:13 INFO]: Request for: mainPage.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\css\mainPage.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: *{
+[21:00:13 INFO]:     font-family: "Consolas";
+[21:00:13 INFO]:     box-sizing: border-box;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .grid{
+[21:00:13 INFO]:     position: absolute;
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: row;
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     background: #2d3436;
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     max-width: 100vw;
+[21:00:13 INFO]:     max-height: 100vw;
+[21:00:13 INFO]:     left: 0%;
+[21:00:13 INFO]:     top: 0%;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .topCheck:checked + .test{
+[21:00:13 INFO]:     background-color: black;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideContent{
+[21:00:13 INFO]:     width: 300px;
+[21:00:13 INFO]:     max-width: 300px;
+[21:00:13 INFO]:     min-width: 300px;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: column;
+[21:00:13 INFO]:     z-index: 1;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelection{
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 120px;
+[21:00:13 INFO]:     min-height: 120px;
+[21:00:13 INFO]:     background-color: #2d3436;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: row;
+[21:00:13 INFO]:     justify-content: space-between;
+[21:00:13 INFO]:     align-items: center;
+[21:00:13 INFO]:     overflow-x: auto;
+[21:00:13 INFO]:     border-top: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-left: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-bottom: 8px solid #747d8c;
+[21:00:13 INFO]:     border-right: 8px solid #747d8c;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelectionItem{
+[21:00:13 INFO]:     transition: 1s;
+[21:00:13 INFO]:     background-color: #2d3436;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     justify-content: center;
+[21:00:13 INFO]:     align-items: center;
+[21:00:13 INFO]:     flex-direction: row;
+[21:00:13 INFO]:     width: 90px;
+[21:00:13 INFO]:     min-width: 90px;
+[21:00:13 INFO]:     height: 90px;
+[21:00:13 INFO]:     min-height: 90px;
+[21:00:13 INFO]:     border-radius: 100%;
+[21:00:13 INFO]:     border: 4px solid #ced6e0;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]:     color: white;
+[21:00:13 INFO]:     font-size: 18px;
+[21:00:13 INFO]:     position: relative;
+[21:00:13 INFO]:     cursor: pointer;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelectionItem img{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     width: 90px;
+[21:00:13 INFO]:     height: 90px;
+[21:00:13 INFO]:     position: absolute;
+[21:00:13 INFO]:     opacity: 0;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelectionItem:hover img{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     opacity: 1;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelectionItem:hover{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     border-radius: 0%;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TopSelectionItem:hover span{
+[21:00:13 INFO]:     opacity: 0;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: #testText{
+[21:00:13 INFO]:     font-size: 40px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenu{
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: row;
+[21:00:13 INFO]:     flex-wrap: wrap;
+[21:00:13 INFO]:     align-content: flex-start;
+[21:00:13 INFO]:     justify-content: center;
+[21:00:13 INFO]:     background-color: #2d3436;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     border-top: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-left: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-bottom: 8px solid #747d8c;
+[21:00:13 INFO]:     border-right: 8px solid #747d8c;
+[21:00:13 INFO]:     padding-bottom: 10px;
+[21:00:13 INFO]:     overflow-y: auto;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenuItem{
+[21:00:13 INFO]:     position: relative;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     align-content: center;
+[21:00:13 INFO]:     justify-content: center;
+[21:00:13 INFO]:     width: 90%;
+[21:00:13 INFO]:     margin: 5% 0% 0% 0%;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenuItem span{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     text-align: center;
+[21:00:13 INFO]:     background: #a4b0be;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 40px;
+[21:00:13 INFO]:     font-size: 25px;
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     border: 5px;
+[21:00:13 INFO]:     border-style: solid;
+[21:00:13 INFO]:     border-top-color: #ced6e0;
+[21:00:13 INFO]:     border-left-color: #ced6e0;
+[21:00:13 INFO]:     border-right-color: #747d8c;
+[21:00:13 INFO]:     border-bottom-color: #747d8c;
+[21:00:13 INFO]:     cursor:pointer;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenuItem input:checked ~ span{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     background-color: #222f3e;
+[21:00:13 INFO]:     color: #c8d6e5;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenuItem input{
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     opacity: 0;
+[21:00:13 INFO]:     position: absolute;
+[21:00:13 INFO]:     cursor:pointer;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .sideMenuItem:hover span{
+[21:00:13 INFO]:     border: 5px solid white;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .pageBody{
+[21:00:13 INFO]:     background-color: #303952;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: column;
+[21:00:13 INFO]:     overflow:hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TobMenuBody{
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     justify-content: flex-start;
+[21:00:13 INFO]:     align-items: center;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     height: 120px;
+[21:00:13 INFO]:     min-height: 120px;
+[21:00:13 INFO]:     background-color: #2f3542;
+[21:00:13 INFO]:     color: white;
+[21:00:13 INFO]:     border-top: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-left: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-bottom: 8px solid #747d8c;
+[21:00:13 INFO]:     border-right: 8px solid #747d8c;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TobMenuBody img{
+[21:00:13 INFO]:     height: 100px;
+[21:00:13 INFO]:     border-radius: 100%;
+[21:00:13 INFO]:     border-color: #d2dae2;
+[21:00:13 INFO]:     border-style: solid;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .TobMenuBody img:hover{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     border-radius: 0%;
+[21:00:13 INFO]:     height: 100px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .pageBodyItem{
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataBody{
+[21:00:13 INFO]:     overflow: auto;
+[21:00:13 INFO]:     
+[21:00:13 INFO]: }
+[21:00:13 INFO]: Request for: fillTable.js
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\js\fillTable.js
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: //var table = document.getElementById("mytable1");
+[21:00:13 INFO]: 
+[21:00:13 INFO]: //badading.ddnss.de:5566
+[21:00:13 INFO]: 
+[21:00:13 INFO]: 
+[21:00:13 INFO]: 
+[21:00:13 INFO]: async function httpGet(apiCall)
+[21:00:13 INFO]: {
+[21:00:13 INFO]:     var options = {
+[21:00:13 INFO]:             method: "GET",
+[21:00:13 INFO]:             mode: 'cors', // no-cors, *cors, same-origin
+[21:00:13 INFO]:         };
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     const result = await fetch(apiCall, options)
+[21:00:13 INFO]:     .catch(rejected => {
+[21:00:13 INFO]:         console.log(rejected);
+[21:00:13 INFO]:     });
+[21:00:13 INFO]:     return result.json();
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: async function httpPost(apiCall, data)
+[21:00:13 INFO]: {
+[21:00:13 INFO]:     var options = {
+[21:00:13 INFO]:             method: "POST",
+[21:00:13 INFO]:             mode: 'cors', // no-cors, *cors, same-origin
+[21:00:13 INFO]:             body: "test"
+[21:00:13 INFO]:         };
+[21:00:13 INFO]: 
+[21:00:13 INFO]:     const result = await fetch(apiCall, options)
+[21:00:13 INFO]:     .catch(rejected => {
+[21:00:13 INFO]:         console.log(rejected);
+[21:00:13 INFO]:     });
+[21:00:13 INFO]:     return result.json();
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: function APICALL(){
+[21:00:13 INFO]:     httpPost('api/testcall?test=asdf', { "test" : "someData"}).then((data) => {
+[21:00:13 INFO]:         alert('got data');
+[21:00:13 INFO]:         alert(data.message);
+[21:00:13 INFO]:     });
+[21:00:13 INFO]: }
+[21:00:13 INFO]: Request for: customFonts.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\css\customFonts.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: /*@font-face{
+[21:00:13 INFO]:     font-family: MinecraftFont;
+[21:00:13 INFO]:     src: url(/assets/MinecraftFont.otf);
+[21:00:13 INFO]: }*/
+[21:00:13 INFO]: 
+[21:00:13 INFO]: *{
+[21:00:13 INFO]:     font-family: Consolas;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: Request for: customScroll.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\css\customScroll.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: ::-webkit-scrollbar {
+[21:00:13 INFO]:     width: 10px;
+[21:00:13 INFO]:     height: 10px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: ::-webkit-scrollbar-track {
+[21:00:13 INFO]:   background: #d1d8e0; 
+[21:00:13 INFO]: }
+[21:00:13 INFO]:  
+[21:00:13 INFO]: ::-webkit-scrollbar-thumb {
+[21:00:13 INFO]:   background: #4b6584; 
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: ::-webkit-scrollbar-thumb:hover {
+[21:00:13 INFO]:   background: #778ca3; 
+[21:00:13 INFO]: }
+[21:00:13 INFO]: Request for: myTable.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\css\myTable.css
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: .DataTable{
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: column;
+[21:00:13 INFO]:     background:white;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     background-color: #485460;
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataHeaders{
+[21:00:13 INFO]:     color: #222f3e;
+[21:00:13 INFO]:     background-color:darkgray;
+[21:00:13 INFO]:     box-sizing: border-box;
+[21:00:13 INFO]:     border-top: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-left: 8px solid #ced6e0;
+[21:00:13 INFO]:     border-bottom: 8px solid #747d8c;
+[21:00:13 INFO]:     border-right: 8px solid #747d8c;
+[21:00:13 INFO]:     margin-left: 5px;
+[21:00:13 INFO]:     margin-right: 5px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataHeader_Container{
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     justify-content: space-around;
+[21:00:13 INFO]:     align-items: center;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataHeader_item{
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     align-items: center;
+[21:00:13 INFO]:     justify-content: space-around;
+[21:00:13 INFO]:     box-sizing: border-box;
+[21:00:13 INFO]:     text-align: center;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataBody{
+[21:00:13 INFO]:     height: 100%;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: column;
+[21:00:13 INFO]: 
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataItems{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     display: flex;
+[21:00:13 INFO]:     flex-direction: row;
+[21:00:13 INFO]:     box-sizing: border-box;
+[21:00:13 INFO]:     margin-top: 5px;
+[21:00:13 INFO]:     margin-left: 10px;
+[21:00:13 INFO]:     margin-right: 10px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataItems:hover{
+[21:00:13 INFO]:     transition: 0.5s 0.5s;
+[21:00:13 INFO]:     margin-left: 0px;
+[21:00:13 INFO]:     margin-right: 0px;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataItems:hover .DataItem{
+[21:00:13 INFO]:     transition: 0.5s 0.5s;
+[21:00:13 INFO]:     margin-left: 0px;
+[21:00:13 INFO]:     margin-right: 0px;
+[21:00:13 INFO]:     font-size: 30px;
+[21:00:13 INFO]:     background-color: #c8d6e5;
+[21:00:13 INFO]:     border-left: 1px solid #576574;
+[21:00:13 INFO]:     border-right: 1px solid #576574;
+[21:00:13 INFO]:     padding-left: 10px;
+[21:00:13 INFO]:     padding-right: 10px;
+[21:00:13 INFO]:     overflow: auto;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: 
+[21:00:13 INFO]: .DataItem{
+[21:00:13 INFO]:     transition: 0.5s;
+[21:00:13 INFO]:     width: 100%;
+[21:00:13 INFO]:     text-align: center;
+[21:00:13 INFO]:     box-sizing: border-box;
+[21:00:13 INFO]:     background-color: #8395a7;
+[21:00:13 INFO]:     color: #2d3436;
+[21:00:13 INFO]:     border-top: 3px solid #ced6e0;
+[21:00:13 INFO]:     border-left: 3px solid #ced6e0;
+[21:00:13 INFO]:     border-bottom: 3px solid #747d8c;
+[21:00:13 INFO]:     border-right: 3px solid #747d8c;
+[21:00:13 INFO]:     margin-right: 2px;
+[21:00:13 INFO]:     margin-left: 2px;
+[21:00:13 INFO]:     overflow: hidden;
+[21:00:13 INFO]: }
+[21:00:13 INFO]: Request for: servericon2.png
+[21:00:13 INFO]: -------------------------
+[21:00:13 INFO]: D:\java_projects\ServerDev\Server\bin\res\WebTool\assets\servericon2.png
+[21:00:13 INFO]: -------------------------
+[21:00:13 ERROR]: Could not get file to send: servericon2.png from: D:\java_projects\ServerDev\Server\bin\res\WebTool\assets\servericon2.png
