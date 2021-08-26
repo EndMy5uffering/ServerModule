@@ -150,6 +150,7 @@ public class Logger {
 	}
 	
 	private String getStackTrace(Level level) {
+		if(this.mode == PrintMode.DebugNoTrace) return "";
 		if(this.mode == PrintMode.Event && level != Level.DEBUG) return "";
 		StackTraceElement e = new Exception().getStackTrace()[2];
 		return "Trace:" + e.getClassName() + "." + e.getMethodName() + "() Line:" + e.getLineNumber();

@@ -174,7 +174,7 @@ public class ClientConnection{
 			try {
 				out.write(data.pack());
 				out.flush();
-				Server.getLogger().log(Level.DEBUG, "SEND: " + data.toString());
+				Server.getLogger().log(Level.DEBUG, "SEND(" + data.getClass().getSimpleName() + "): " + data.toString());
 			} catch (IOException e) {
 				Server.logger.log(Level.ERROR, e, e.getClass());
 				disable();

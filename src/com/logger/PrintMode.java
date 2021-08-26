@@ -5,6 +5,7 @@ public enum PrintMode {
 	Debug,
 	Event,
 	DebugDetaild,
+	DebugNoTrace,
 	EventDetaild
 	
 }

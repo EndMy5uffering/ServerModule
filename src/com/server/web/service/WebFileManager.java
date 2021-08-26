@@ -22,10 +22,6 @@ public class WebFileManager {
 			Server.getLogger().log(Level.INFO, "Request for: " + fileName);
 			if(files.get(fileName) != null) {
 				try {
-					Server.logger.log(Level.INFO, "-------------------------");
-					Server.logger.log(Level.INFO, files.get(fileName).toString());
-					Server.logger.log(Level.INFO, "-------------------------");
-					Files.readAllLines(files.get(fileName)).forEach(x -> Server.getLogger().log(Level.INFO, x));
 					byte[] output = Files.readAllBytes(files.get(fileName));
 					he.sendResponseHeaders(200, output.length);
 					he.getResponseBody().write(output);
